@@ -2,6 +2,7 @@
 
 新增一个赛道 = 新增一个 Source 子类并注册，其余（回测/分析/报告）全部自动可用。
 """
+
 from __future__ import annotations
 
 import os
@@ -14,8 +15,10 @@ from abc import ABC, abstractmethod
 import pandas as pd
 import requests
 
-UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
-      "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36")
+UA = (
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+)
 
 # 对公开接口保持克制：默认每次请求间隔 >= 3 秒。请勿调低。
 MIN_GAP = float(os.environ.get("DCA_MIN_GAP", "3.0"))
@@ -23,8 +26,7 @@ MIN_GAP = float(os.environ.get("DCA_MIN_GAP", "3.0"))
 _lock = threading.Lock()
 _last = [0.0]
 _sess = requests.Session()
-_sess.headers.update({"User-Agent": UA, "Accept": "*/*",
-                      "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8"})
+_sess.headers.update({"User-Agent": UA, "Accept": "*/*", "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8"})
 
 
 def throttle():
@@ -58,6 +60,7 @@ class Source(ABC):
       · 基金 -> 复权净值   · 指数 -> 全收益点位（没有则价格点位，需在配置里给 dividend）
       · 期货 -> 主力连续收盘价
     """
+
     key: str = ""
     label: str = ""
     #: 该源的数据是否已含分红再投资
@@ -92,15 +95,14 @@ class Source(ABC):
         if len(df) > 2:
             gap = df["date"].diff().dt.days
             # 头部若存在 > 1 年的断档，视为基期占位，丢弃断档之前的行
-            head = gap[1:min(6, len(df))]
+            head = gap[1 : min(6, len(df))]
             big = head[head > 365]
             if not big.empty:
-                df = df.iloc[big.index[-1]:].reset_index(drop=True)
+                df = df.iloc[big.index[-1] :].reset_index(drop=True)
         return df
 
     @abstractmethod
-    def _fetch(self, code: str) -> pd.DataFrame:
-        ...
+    def _fetch(self, code: str) -> pd.DataFrame: ...
 
     def meta(self, code: str) -> dict:
         """可选：费率、名称、规模等。默认空。"""

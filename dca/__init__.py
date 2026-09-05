@@ -6,6 +6,7 @@
     r = p.returns()
     print(analysis.rolling_table(r, p.weights))
 """
+
 from . import analysis, engine, sources
 from .portfolio import Asset, Portfolio
 

@@ -79,7 +79,6 @@ jobs:
         run: ruff check dca tests
       - name: Ruff format check
         run: ruff format --check --diff dca tests
-        continue-on-error: true   # 格式仅提示，不阻断
 
   build:
     runs-on: ubuntu-latest
@@ -104,7 +103,7 @@ jobs:
               assert any(n.endswith(want) for n in names), f"缺少 {want}"
           print("所有子包均已打包")
           PY
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         with:
           name: dist
           path: dist/

@@ -1,4 +1,5 @@
 """核心分析：滚动窗口 / 起点敏感性 / 全周期矩阵。"""
+
 from __future__ import annotations
 
 import numpy as np
@@ -23,8 +24,9 @@ def rolling_table(returns, weights=None, horizons=DEFAULT_HORIZONS, **kw) -> pd.
     return pd.DataFrame(rows)
 
 
-def start_sensitivity(returns_by_start: dict[str, pd.DataFrame], weights=None,
-                      horizon_y: int = 10, **kw) -> pd.DataFrame:
+def start_sensitivity(
+    returns_by_start: dict[str, pd.DataFrame], weights=None, horizon_y: int = 10, **kw
+) -> pd.DataFrame:
     """起点敏感性：同一组合在多个起点窗口下的结果。
 
     returns_by_start: {窗口标签: 收益率矩阵}
@@ -37,8 +39,16 @@ def start_sensitivity(returns_by_start: dict[str, pd.DataFrame], weights=None,
             rows.append({"window": tag, "med": np.nan, "min": np.nan, "loss": np.nan, "n": 0})
             continue
         s = summarize(rolling_dca(r, weights, H, **kw))
-        rows.append({"window": tag, "med": s["med"], "p10": s["p10"], "min": s["min"],
-                     "loss": s["loss_prob"], "n": s["n"]})
+        rows.append(
+            {
+                "window": tag,
+                "med": s["med"],
+                "p10": s["p10"],
+                "min": s["min"],
+                "loss": s["loss_prob"],
+                "n": s["n"],
+            }
+        )
     df = pd.DataFrame(rows)
     ok = df["med"].dropna()
     if len(ok):
@@ -47,9 +57,14 @@ def start_sensitivity(returns_by_start: dict[str, pd.DataFrame], weights=None,
     return df
 
 
-def asset_start_sensitivity(portfolio, windows: dict[str, str], horizon_y: int = 10,
-                            include_portfolio: bool = True, use_proxy: bool = False,
-                            **kw) -> pd.DataFrame:
+def asset_start_sensitivity(
+    portfolio,
+    windows: dict[str, str],
+    horizon_y: int = 10,
+    include_portfolio: bool = True,
+    use_proxy: bool = False,
+    **kw,
+) -> pd.DataFrame:
     """逐资产 + 组合的起点敏感性对照表（本项目最有信息量的一张表）。
 
     windows: {标签: 起始日期字符串}
@@ -81,7 +96,9 @@ def asset_start_sensitivity(portfolio, windows: dict[str, str], horizon_y: int =
                 continue
             rd = rolling_dca(r, portfolio.weights, H, **kw)
             vals.append(float(rd["irr"].median()) if len(rd) else np.nan)
-        rows.append({"name": f"★ {portfolio.name}", "kind": "portfolio", **dict(zip(windows, vals, strict=True))})
+        rows.append(
+            {"name": f"★ {portfolio.name}", "kind": "portfolio", **dict(zip(windows, vals, strict=True))}
+        )
     df = pd.DataFrame(rows)
     vc = [c for c in df.columns if c not in ("name", "kind")]
     df["lo"] = df[vc].min(axis=1)
@@ -90,8 +107,9 @@ def asset_start_sensitivity(portfolio, windows: dict[str, str], horizon_y: int =
     return df.sort_values("range")
 
 
-def year_horizon_matrix(returns, weights=None, years=None, horizons=(1, 2, 3, 5, 7, 10, 15),
-                        **kw) -> pd.DataFrame:
+def year_horizon_matrix(
+    returns, weights=None, years=None, horizons=(1, 2, 3, 5, 7, 10, 15), **kw
+) -> pd.DataFrame:
     """全周期矩阵：每个起投年（1 月） × 每种持有期限。"""
     idx = returns.index
     if years is None:
@@ -108,7 +126,7 @@ def year_horizon_matrix(returns, weights=None, years=None, horizons=(1, 2, 3, 5,
             if s + H > len(returns):
                 row[h] = np.nan
                 continue
-            res = dca_path(returns.iloc[s:s + H], weights, **kw)
+            res = dca_path(returns.iloc[s : s + H], weights, **kw)
             row[h] = res[1] if res else np.nan
         if not all(np.isnan(v) for v in row.values()):
             out[y] = row
@@ -126,8 +144,15 @@ def dca_vs_lumpsum(returns, weights=None, horizons=DEFAULT_HORIZONS, **kw) -> pd
         ls = lumpsum_rolling(returns, weights, H)
         if rd.empty or ls.empty:
             continue
-        rows.append({"years": y,
-                     "dca_med": float(rd["irr"].median()), "lump_med": float(ls.median()),
-                     "dca_min": float(rd["irr"].min()), "lump_min": float(ls.min()),
-                     "dca_loss": float((rd["irr"] < 0).mean()), "lump_loss": float((ls < 0).mean())})
+        rows.append(
+            {
+                "years": y,
+                "dca_med": float(rd["irr"].median()),
+                "lump_med": float(ls.median()),
+                "dca_min": float(rd["irr"].min()),
+                "lump_min": float(ls.min()),
+                "dca_loss": float((rd["irr"] < 0).mean()),
+                "lump_loss": float((ls < 0).mean()),
+            }
+        )
     return pd.DataFrame(rows)

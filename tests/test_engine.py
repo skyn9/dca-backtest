@@ -1,4 +1,5 @@
 """引擎自检：全部用已知答案校验，不依赖网络。"""
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -65,8 +66,7 @@ def test_rolling_window_count_and_span():
 
 def test_rebalance_identical_for_single_asset():
     r = const_returns(150, 0.006)
-    got = [rolling_dca(r, horizon_m=120, rebalance=m)["irr"].median()
-           for m in ("cashflow", "annual", "none")]
+    got = [rolling_dca(r, horizon_m=120, rebalance=m)["irr"].median() for m in ("cashflow", "annual", "none")]
     assert max(got) - min(got) < 1e-12
 
 
@@ -81,10 +81,10 @@ def test_cashflow_rebalance_pulls_toward_target():
             net = 1000.0
             tot = units.sum()
             if mode == "cashflow" and tot > 0:
-                gap = np.maximum((tot + net) * np.array([.5, .5]) - units, 0)
-                alloc = gap / gap.sum() * net if gap.sum() > 1e-12 else net * np.array([.5, .5])
+                gap = np.maximum((tot + net) * np.array([0.5, 0.5]) - units, 0)
+                alloc = gap / gap.sum() * net if gap.sum() > 1e-12 else net * np.array([0.5, 0.5])
             else:
-                alloc = net * np.array([.5, .5])
+                alloc = net * np.array([0.5, 0.5])
             units = (units + alloc) * (1 + R.iloc[t].values)
         dev[mode] = abs(units[0] / units.sum() - 0.5)
     assert dev["cashflow"] < dev["none"]
@@ -95,7 +95,7 @@ def test_contrib_growth_raises_cost_not_irr():
     a, ia = dca_path(r, buy_fee=0.0)
     b, ib = dca_path(r, buy_fee=0.0, contrib_growth=0.10)
     assert b["cost"].iloc[-1] > a["cost"].iloc[-1] * 1.4
-    assert abs(ib - ia) < 1e-9          # 固定收益率下，递增定投不改变 IRR
+    assert abs(ib - ia) < 1e-9  # 固定收益率下，递增定投不改变 IRR
 
 
 def test_lumpsum_matches_cagr():
@@ -121,6 +121,5 @@ def test_cli_survives_non_utf8_console():
     import sys
 
     env = {**os.environ, "PYTHONIOENCODING": "cp1252"}
-    r = subprocess.run([sys.executable, "-m", "dca", "sources"],
-                       capture_output=True, env=env, timeout=60)
+    r = subprocess.run([sys.executable, "-m", "dca", "sources"], capture_output=True, env=env, timeout=60)
     assert r.returncode == 0, f"退出码 {r.returncode}: {r.stderr.decode('utf-8', 'replace')[-400:]}"

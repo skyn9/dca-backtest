@@ -1,4 +1,5 @@
 """组合与配置的自检，不依赖网络。"""
+
 import glob
 
 import numpy as np
@@ -11,23 +12,40 @@ from dca.sources import available
 
 
 def test_weights_normalized():
-    p = Portfolio.from_dict({"name": "t", "assets": [
-        {"name": "a", "source": "fund", "code": "1", "weight": 2},
-        {"name": "b", "source": "fund", "code": "2", "weight": 3}]})
+    p = Portfolio.from_dict(
+        {
+            "name": "t",
+            "assets": [
+                {"name": "a", "source": "fund", "code": "1", "weight": 2},
+                {"name": "b", "source": "fund", "code": "2", "weight": 3},
+            ],
+        }
+    )
     assert p.weights.sum() == pytest.approx(1.0)
     assert p.weights["a"] == pytest.approx(0.4)
 
 
 def test_equal_weight_when_unspecified():
-    p = Portfolio.from_dict({"name": "t", "assets": [
-        {"name": "a", "source": "fund", "code": "1"},
-        {"name": "b", "source": "fund", "code": "2"}]})
+    p = Portfolio.from_dict(
+        {
+            "name": "t",
+            "assets": [
+                {"name": "a", "source": "fund", "code": "1"},
+                {"name": "b", "source": "fund", "code": "2"},
+            ],
+        }
+    )
     assert p.weights["a"] == pytest.approx(0.5)
 
 
 def test_proxy_resolution():
-    a = Asset(name="x", source="fund", code="009051", weight=1.0,
-              proxy={"source": "csindex", "code": "H00922", "annual_fee": 0.002})
+    a = Asset(
+        name="x",
+        source="fund",
+        code="009051",
+        weight=1.0,
+        proxy={"source": "csindex", "code": "H00922", "annual_fee": 0.002},
+    )
     q = a.as_proxy()
     assert (q.source, q.code, q.annual_fee) == ("csindex", "H00922", 0.002)
     assert q.name == a.name and q.weight == a.weight
@@ -54,7 +72,13 @@ def test_shipped_configs_are_valid(path):
 def test_blend_matches_manual_weighting():
     idx = pd.date_range("2020-01-31", periods=12, freq="ME")
     r = pd.DataFrame({"a": np.linspace(0.01, 0.02, 12), "b": np.linspace(-0.01, 0.01, 12)}, index=idx)
-    p = Portfolio.from_dict({"name": "t", "assets": [
-        {"name": "a", "source": "fund", "code": "1", "weight": 0.7},
-        {"name": "b", "source": "fund", "code": "2", "weight": 0.3}]})
+    p = Portfolio.from_dict(
+        {
+            "name": "t",
+            "assets": [
+                {"name": "a", "source": "fund", "code": "1", "weight": 0.7},
+                {"name": "b", "source": "fund", "code": "2", "weight": 0.3},
+            ],
+        }
+    )
     assert np.allclose(p.blend(r).values, (r["a"] * 0.7 + r["b"] * 0.3).values)

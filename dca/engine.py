@@ -1,4 +1,5 @@
 """定投回测引擎。所有收益率均为 IRR（按现金流时点加权），非"总收益÷总投入"。"""
+
 from __future__ import annotations
 
 import numpy as np
@@ -20,7 +21,7 @@ def xirr_monthly(cashflows, final_value: float) -> float:
 
     def npv(r):
         m = (1.0 + r) ** (1.0 / 12.0)
-        return sum(-cf / m ** i for i, cf in enumerate(cashflows)) + final_value / m ** n
+        return sum(-cf / m**i for i, cf in enumerate(cashflows)) + final_value / m**n
 
     try:
         lo, hi = -0.95, 5.0
@@ -31,9 +32,16 @@ def xirr_monthly(cashflows, final_value: float) -> float:
         return float("nan")
 
 
-def dca_path(returns: pd.DataFrame | pd.Series, weights=None, *, monthly: float = 1000.0,
-             buy_fee: float = 0.0012, rebalance: str = "cashflow",
-             contrib_growth: float = 0.0, dip_boost: float = 0.0):
+def dca_path(
+    returns: pd.DataFrame | pd.Series,
+    weights=None,
+    *,
+    monthly: float = 1000.0,
+    buy_fee: float = 0.0012,
+    rebalance: str = "cashflow",
+    contrib_growth: float = 0.0,
+    dip_boost: float = 0.0,
+):
     """在给定的月度收益率序列上做定投。
 
     returns   : DataFrame(多资产) 或 Series(已合成)
@@ -52,8 +60,12 @@ def dca_path(returns: pd.DataFrame | pd.Series, weights=None, *, monthly: float 
     if weights is None:
         w = np.ones(k) / k
     else:
-        w = np.asarray([weights[c] for c in returns.columns] if hasattr(weights, "__getitem__")
-                       and not isinstance(weights, np.ndarray) else weights, dtype=float)
+        w = np.asarray(
+            [weights[c] for c in returns.columns]
+            if hasattr(weights, "__getitem__") and not isinstance(weights, np.ndarray)
+            else weights,
+            dtype=float,
+        )
         w = w / w.sum()
 
     units = np.zeros(k)
@@ -77,8 +89,8 @@ def dca_path(returns: pd.DataFrame | pd.Series, weights=None, *, monthly: float 
         units += alloc
         cost += amt
         cf.append(amt)
-        units *= (1.0 + R[t])
-        nav *= (1.0 + float((R[t] * w).sum()))
+        units *= 1.0 + R[t]
+        nav *= 1.0 + float((R[t] * w).sum())
         peak = max(peak, nav)
         if rebalance == "annual" and (t + 1) % 12 == 0 and units.sum() > 0:
             units = units.sum() * w
@@ -94,7 +106,7 @@ def rolling_dca(returns, weights=None, horizon_m: int = 120, *, step: int = 1, *
         returns = returns.to_frame("P")
     out = []
     for s in range(0, len(returns) - horizon_m + 1, step):
-        sub = returns.iloc[s:s + horizon_m]
+        sub = returns.iloc[s : s + horizon_m]
         if len(sub) < horizon_m:
             break
         res = dca_path(sub, weights, **kw)
@@ -103,37 +115,55 @@ def rolling_dca(returns, weights=None, horizon_m: int = 120, *, step: int = 1, *
         H, irr = res
         if irr != irr:
             continue
-        out.append({"start": sub.index[0], "end": sub.index[-1], "irr": irr,
-                    "mult": H["value"].iloc[-1] / H["cost"].iloc[-1],
-                    "maxdd": float((H["value"] / H["cost"] - 1).min())})
+        out.append(
+            {
+                "start": sub.index[0],
+                "end": sub.index[-1],
+                "irr": irr,
+                "mult": H["value"].iloc[-1] / H["cost"].iloc[-1],
+                "maxdd": float((H["value"] / H["cost"] - 1).min()),
+            }
+        )
     return pd.DataFrame(out)
 
 
 def lumpsum_rolling(returns, weights=None, horizon_m: int = 120) -> pd.Series:
     """同期限一次性投入的年化收益，用于与定投对比。"""
     if isinstance(returns, pd.DataFrame):
-        w = np.ones(returns.shape[1]) / returns.shape[1] if weights is None else \
-            np.asarray([weights[c] for c in returns.columns], dtype=float)
+        w = (
+            np.ones(returns.shape[1]) / returns.shape[1]
+            if weights is None
+            else np.asarray([weights[c] for c in returns.columns], dtype=float)
+        )
         r = (returns * (w / w.sum())).sum(axis=1)
     else:
         r = returns
     v = np.concatenate([[1.0], np.cumprod(1 + r.values)])
-    out = [(v[s + horizon_m] / v[s]) ** (12.0 / horizon_m) - 1
-           for s in range(0, len(v) - horizon_m)]
-    return pd.Series(out, index=r.index[:len(out)])
+    out = [(v[s + horizon_m] / v[s]) ** (12.0 / horizon_m) - 1 for s in range(0, len(v) - horizon_m)]
+    return pd.Series(out, index=r.index[: len(out)])
 
 
 def summarize(rd: pd.DataFrame, label: str = "") -> dict:
     if rd is None or rd.empty:
         return {}
     i = rd["irr"].dropna()
-    return {"label": label, "n": len(i), "med": float(i.median()), "mean": float(i.mean()),
-            "p10": float(i.quantile(.10)), "p25": float(i.quantile(.25)),
-            "p75": float(i.quantile(.75)), "p90": float(i.quantile(.90)),
-            "min": float(i.min()), "max": float(i.max()),
-            "loss_prob": float((i < 0).mean()),
-            "med_mult": float(rd["mult"].median()), "worst_mult": float(rd["mult"].min()),
-            "med_maxdd": float(rd["maxdd"].median()), "worst_maxdd": float(rd["maxdd"].min())}
+    return {
+        "label": label,
+        "n": len(i),
+        "med": float(i.median()),
+        "mean": float(i.mean()),
+        "p10": float(i.quantile(0.10)),
+        "p25": float(i.quantile(0.25)),
+        "p75": float(i.quantile(0.75)),
+        "p90": float(i.quantile(0.90)),
+        "min": float(i.min()),
+        "max": float(i.max()),
+        "loss_prob": float((i < 0).mean()),
+        "med_mult": float(rd["mult"].median()),
+        "worst_mult": float(rd["mult"].min()),
+        "med_maxdd": float(rd["maxdd"].median()),
+        "worst_maxdd": float(rd["maxdd"].min()),
+    }
 
 
 def perf_stats(returns: pd.DataFrame) -> pd.DataFrame:
@@ -149,7 +179,15 @@ def perf_stats(returns: pd.DataFrame) -> pd.DataFrame:
         cagr = float((1 + r).prod() ** (1 / yrs) - 1)
         vol = float(r.std() * np.sqrt(12))
         cum = (1 + r).cumprod()
-        rows.append({"asset": c, "months": len(r), "years": round(yrs, 1), "cagr": cagr,
-                     "vol": vol, "mdd": float((cum / cum.cummax() - 1).min()),
-                     "sharpe": (cagr - 0.02) / vol if vol > 0 else float("nan")})
+        rows.append(
+            {
+                "asset": c,
+                "months": len(r),
+                "years": round(yrs, 1),
+                "cagr": cagr,
+                "vol": vol,
+                "mdd": float((cum / cum.cummax() - 1).min()),
+                "sharpe": (cagr - 0.02) / vol if vol > 0 else float("nan"),
+            }
+        )
     return pd.DataFrame(rows)
