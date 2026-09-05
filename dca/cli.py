@@ -305,7 +305,21 @@ def build_parser():
     return ap
 
 
+def _force_utf8_output() -> None:
+    """本工具的输出全是中文，而 Windows 控制台默认编码是 cp1252/GBK，
+    直接 print 会抛 UnicodeEncodeError。这里把标准流强制切到 UTF-8。
+
+    见 CI: py3.12 on windows-latest 曾在 `dca sources` 首行输出即崩溃。
+    """
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError, OSError):
+            pass  # 已被重定向到不支持 reconfigure 的对象时忽略
+
+
 def main(argv=None):
+    _force_utf8_output()
     args = build_parser().parse_args(argv)
     try:
         args.func(args)

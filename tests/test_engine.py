@@ -109,3 +109,18 @@ def test_perf_stats_cagr():
     st = perf_stats(const_returns(120, rm).to_frame("x"))
     assert st["cagr"].iloc[0] == pytest.approx((1 + rm) ** 12 - 1, abs=1e-9)
     assert st["mdd"].iloc[0] == pytest.approx(0.0, abs=1e-12)
+
+
+def test_cli_survives_non_utf8_console():
+    """Windows 控制台默认 cp1252，中文输出曾导致 UnicodeEncodeError 崩溃。
+
+    这是 CI 在 windows-latest 上抓到的真实缺陷，此测试防止回归。
+    """
+    import os
+    import subprocess
+    import sys
+
+    env = {**os.environ, "PYTHONIOENCODING": "cp1252"}
+    r = subprocess.run([sys.executable, "-m", "dca", "sources"],
+                       capture_output=True, env=env, timeout=60)
+    assert r.returncode == 0, f"退出码 {r.returncode}: {r.stderr.decode('utf-8', 'replace')[-400:]}"
