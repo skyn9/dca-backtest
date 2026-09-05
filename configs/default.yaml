@@ -1,0 +1,63 @@
+# 7 只场外基金的均衡定投组合（研究报告的主方案）
+#
+# 每个资产有两层：
+#   source/code —— 你实际要买的基金（净值已含分红、汇率、费用）
+#   proxy       —— 回测用的长历史代理（指数/期货），跟踪同一标的但历史长得多
+#
+# 为什么需要 proxy：低费率的基金普遍是近几年成立的，直接回测公共窗口只有 3.5 年，
+# 做 10 年期检验样本严重不足。用 `--proxy` 在 18.7 年窗口上验证策略，
+# 实盘仍买 code 指定的产品。两者不可混用于同一结论。
+#
+#   python -m dca run  -c configs/default.yaml           # 看实际产品的近期表现
+#   python -m dca test -c configs/default.yaml --proxy   # 用长历史做稳健性检验
+
+name: 均衡7只
+monthly_amount: 2000
+buy_fee: 0.0012           # 第三方平台申购费 1 折
+
+assets:
+  - name: A股红利
+    source: fund
+    code: "009051"        # 易方达中证红利ETF联接A，年费 0.20%
+    weight: 0.24
+    proxy: {source: csindex, code: H00922, annual_fee: 0.0020}   # 中证红利全收益，2004起
+
+  - name: A股中证500
+    source: fund
+    code: "007028"        # 易方达中证500ETF联接发起式A，年费 0.20%
+    weight: 0.06
+    proxy: {source: csindex, code: H00905, annual_fee: 0.0020}
+
+  - name: 港股红利
+    source: fund
+    code: "021457"        # 易方达恒生红利低波ETF联接A，年费 0.20%
+    weight: 0.10
+    note: "长历史含回溯模拟成分，权重不宜过高"
+    proxy: {source: csindex, code: "930838", dividend: 0.04, annual_fee: 0.0060}
+
+  - name: 美股标普500
+    source: fund
+    code: "017641"        # 摩根标普500指数(QDII)人民币A，年费 0.65%
+    weight: 0.18
+    proxy: {source: sina_us, code: ".INX", dividend: 0.019, fx: USDCNY, annual_fee: 0.0065}
+
+  - name: 美股纳指100
+    source: fund
+    code: "016532"        # 嘉实纳斯达克100ETF联接(QDII)A，年费 0.60%
+    weight: 0.14
+    note: "权重被主动压低（优化器建议 21~26%），理由是估值与集中度，代价约 1.4pp/年"
+    proxy: {source: sina_us, code: ".IXIC", dividend: 0.009, fx: USDCNY, annual_fee: 0.0065}
+
+  - name: 黄金
+    source: fund
+    code: "008701"        # 华夏黄金ETF联接A，年费 0.20%
+    weight: 0.13
+    note: "边际贡献不稳健（三窗口 -0.31~+0.50pp）。配它是买保险，不是买收益"
+    proxy: {source: sina_fut, code: AU0, tracking_diff: 0.0030}  # 与该基金实测相关性 0.987
+
+  - name: 债券
+    source: fund
+    code: "006961"        # 南方中债7-10年国开行债券指数A，年费 0.20%
+    weight: 0.15
+    note: "须用纯利率债；二级债基对A股相关性达 0.69，起不到缓冲作用"
+    proxy: {source: csindex, code: H11001, annual_fee: 0.0030}

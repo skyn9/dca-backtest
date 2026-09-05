@@ -1,0 +1,11 @@
+# 赛道示例 · 全球股票（不含 A 股）
+# 全部为可买的场外 QDII，净值已含汇率与费用。
+name: 全球股票
+monthly_amount: 2000
+assets:
+  - {name: 美股标普500, source: fund, code: "017641", weight: 0.30}
+  - {name: 美股纳指100, source: fund, code: "016532", weight: 0.22}
+  - {name: 港股恒生,   source: fund, code: "000071", weight: 0.13, note: "华夏恒生ETF联接A 2012起"}
+  - {name: 日经225,   source: fund, code: "020712", weight: 0.12, note: "华安三菱日联日经225 年费0.25%"}
+  - {name: 德国DAX,   source: fund, code: "000614", weight: 0.11, note: "华安德国30联接 2014起"}
+  - {name: 印度,      source: fund, code: "164824", weight: 0.12, note: "工银印度 年费1.40% 偏高"}

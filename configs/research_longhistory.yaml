@@ -1,0 +1,53 @@
+# 长历史研究口径（2008-01 起，18.7 年）——报告里所有回测用的就是这套
+#
+# 与 default.yaml 的区别：用指数/期货代理而非基金，换取更长的历史。
+# 代价是必须手工补齐三件事，这也是本框架三个校正字段的用途：
+#   dividend      价格指数缺失的股息 -> 补回
+#   annual_fee    指数不含费用       -> 扣掉，模拟真实基金
+#   tracking_diff 代理与可买产品的差 -> 扣掉（黄金 0.30% 由与黄金ETF的实测校准得到）
+name: 长历史研究口径
+monthly_amount: 1000
+buy_fee: 0.0012
+
+assets:
+  - name: A股红利
+    source: csindex
+    code: H00922            # 中证红利【全收益】，已含分红
+    weight: 0.24
+    annual_fee: 0.0020
+  - name: A股中证500
+    source: csindex
+    code: H00905
+    weight: 0.06
+    annual_fee: 0.0020
+  - name: 港股红利
+    source: csindex
+    code: "930838"          # 恒生港股通高股息（价格指数）
+    weight: 0.10
+    dividend: 0.04          # 保守股息假设，实际股息率约 6.8%
+    annual_fee: 0.0060
+    note: "长历史含回溯模拟成分，权重不宜过高"
+  - name: 美股标普500
+    source: sina_us
+    code: ".INX"
+    weight: 0.18
+    dividend: 0.019         # 标普长期平均股息率
+    fx: USDCNY              # 折算为人民币，含汇率影响
+    annual_fee: 0.0065
+  - name: 美股纳指100
+    source: sina_us
+    code: ".IXIC"
+    weight: 0.14
+    dividend: 0.009
+    fx: USDCNY
+    annual_fee: 0.0065
+  - name: 黄金
+    source: sina_fut
+    code: AU0               # 沪金主力连续，2008-01 起，人民币计价
+    weight: 0.13
+    tracking_diff: 0.0030   # 与华安黄金ETF联接实测年化差（相关性 0.987）
+  - name: 债券
+    source: csindex
+    code: H11001            # 中证全债
+    weight: 0.15
+    annual_fee: 0.0030

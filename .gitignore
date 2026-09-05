@@ -1,0 +1,24 @@
+# 行情数据不入库：版权归各来源所有，请自行抓取
+data/*
+!data/.gitkeep
+
+# 生成物
+out/
+*.html
+!docs/*.html
+
+# Python
+__pycache__/
+*.py[cod]
+.venv*/
+venv/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# 编辑器 / 系统
+.idea/
+.vscode/
+.DS_Store

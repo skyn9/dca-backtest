@@ -1,0 +1,12 @@
+# 赛道示例 · 纯 A 股多风格
+# 用来验证一个结论：A 股内部各风格相关性 0.71~0.81，分散效果有限。
+# 跑一次 `dca test` 看它的起点敏感性——会比含海外资产的组合差很多。
+name: A股多风格
+monthly_amount: 2000
+assets:
+  - {name: 红利,     source: fund, code: "009051", weight: 0.30}
+  - {name: 沪深300,  source: fund, code: "000051", weight: 0.20, note: "华夏沪深300ETF联接A"}
+  - {name: 中证500,  source: fund, code: "007028", weight: 0.15}
+  - {name: 中证A500, source: fund, code: "022430", weight: 0.15, note: "2024新指数，历史短"}
+  - {name: 创业板,   source: fund, code: "001592", weight: 0.10, note: "天弘创业板ETF联接A"}
+  - {name: 科创50,   source: fund, code: "011608", weight: 0.10, note: "易方达上证科创50联接A"}

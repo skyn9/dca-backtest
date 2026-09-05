@@ -1,0 +1,12 @@
+# 赛道示例 · 用指数做超长历史研究（不可直接买）
+# 中证全收益指数可回溯到 2004，比任何基金都长。适合做资产配置层面的验证，
+# 但必须用 annual_fee 扣掉基金费用，否则会系统性高估。
+name: 指数长历史
+monthly_amount: 1000
+assets:
+  - {name: 沪深300,   source: csindex, code: H00300, weight: 0.20, annual_fee: 0.0020}
+  - {name: 中证500,   source: csindex, code: H00905, weight: 0.15, annual_fee: 0.0020}
+  - {name: 中证红利,  source: csindex, code: H00922, weight: 0.25, annual_fee: 0.0020}
+  - {name: 上证50,    source: csindex, code: H00016, weight: 0.10, annual_fee: 0.0020}
+  - {name: 中证1000,  source: csindex, code: H00852, weight: 0.10, annual_fee: 0.0020}
+  - {name: 中证全债,  source: csindex, code: H11001, weight: 0.20, annual_fee: 0.0030}

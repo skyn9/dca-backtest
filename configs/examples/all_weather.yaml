@@ -1,0 +1,10 @@
+# 赛道示例 · 全天候思路（低相关资产 + 高债券比重）
+# 适合风险承受力低、或临近用钱的人。预期收益更低，但浮亏显著更小。
+name: 全天候
+monthly_amount: 2000
+assets:
+  - {name: A股红利,    source: fund, code: "009051", weight: 0.15}
+  - {name: 美股标普500, source: fund, code: "017641", weight: 0.20}
+  - {name: 黄金,      source: fund, code: "008701", weight: 0.20}
+  - {name: 长久期债券,  source: fund, code: "006961", weight: 0.30, note: "7-10年国开，利率下行时对冲股票"}
+  - {name: 短久期债券,  source: fund, code: "006925", weight: 0.15, note: "永赢中债1-3年政金债，现金替代"}

@@ -1,0 +1,896 @@
+<title>定投组合作战手册</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --ground:#FBFAF7; --panel:#FFFFFC; --sunk:#F4F1EA00; --ink:#16232E; --ink-2:#3B4C59; --muted:#61707C;
+  --rule:#E2DCD1; --rule-2:#EEE9E0; --rule-3:#F5F2EC;
+  --gold:#C07A16; --gold-2:#9A6111; --gold-w:#F2E6CE; --blue:#2F6FC4; --blue-w:#DCE7F7; --rose:#B23A5F;
+  --pos:#1E6B48; --neg:#A6352B;
+  --sf:'Spectral','Songti SC','Noto Serif CJK SC','Source Han Serif SC',Georgia,serif;
+  --ss:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',system-ui,sans-serif;
+  --sm:'IBM Plex Mono','SF Mono',ui-monospace,Menlo,monospace;
+  --nav:250px; --wrap:1180px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#121A21; --panel:#18222B; --ink:#ECE7DF; --ink-2:#C2CAD1; --muted:#8E9BA5;
+  --rule:#293743; --rule-2:#212C36; --rule-3:#1B242D;
+  --gold:#C2842B; --gold-2:#DBA44B; --gold-w:#33280F; --blue:#5390DC; --blue-w:#1A2942; --rose:#D25777;
+  --pos:#4C9B70; --neg:#D06A5E;
+}}
+:root[data-theme="dark"]{
+  --ground:#121A21; --panel:#18222B; --ink:#ECE7DF; --ink-2:#C2CAD1; --muted:#8E9BA5;
+  --rule:#293743; --rule-2:#212C36; --rule-3:#1B242D;
+  --gold:#C2842B; --gold-2:#DBA44B; --gold-w:#33280F; --blue:#5390DC; --blue-w:#1A2942; --rose:#D25777;
+  --pos:#4C9B70; --neg:#D06A5E;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:var(--ss);font-size:15px;line-height:1.75;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+.shell{display:grid;grid-template-columns:var(--nav) minmax(0,1fr);max-width:var(--wrap);margin:0 auto;gap:0}
+h1,h2,h3,h4{font-family:var(--sf);text-wrap:balance;line-height:1.24;margin:0;font-weight:600}
+h1{font-size:clamp(32px,4.4vw,52px);font-weight:700;letter-spacing:-.015em}
+h2{font-size:clamp(22px,2.6vw,30px)}
+h3{font-size:17.5px}
+h4{font-size:15px;font-family:var(--ss);font-weight:600}
+p{margin:0 0 15px}
+em{font-style:italic}
+.mono,.n{font-family:var(--sm);font-variant-numeric:tabular-nums}
+.eyebrow{font-family:var(--sm);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.prose{max-width:68ch}
+a{color:var(--gold);text-decoration-thickness:1px;text-underline-offset:2px}
+
+/* ---------- nav ---------- */
+nav{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;padding:38px 24px 40px 28px;
+  border-right:1px solid var(--rule);font-size:13px}
+nav .brand{font-family:var(--sf);font-size:15px;font-weight:600;line-height:1.35;margin-bottom:4px}
+nav .sub{color:var(--muted);font-size:11.5px;font-family:var(--sm);margin-bottom:26px;letter-spacing:.02em}
+nav ol{list-style:none;padding:0;margin:0;counter-reset:c}
+nav li{counter-increment:c;margin-bottom:1px}
+nav a{display:flex;gap:9px;padding:5px 8px 5px 0;color:var(--ink-2);text-decoration:none;border-radius:3px;
+  transition:color .12s}
+nav a::before{content:counter(c,decimal-leading-zero);font-family:var(--sm);font-size:10px;color:var(--muted);
+  padding-top:3px;flex:none;letter-spacing:.04em}
+nav a:hover{color:var(--gold)}
+nav a.on{color:var(--gold);font-weight:600}
+nav a.on::before{color:var(--gold)}
+nav .foot{margin-top:28px;padding-top:16px;border-top:1px solid var(--rule-2);color:var(--muted);
+  font-size:11px;line-height:1.6}
+main{padding:0 0 0 46px;min-width:0}
+
+/* ---------- cover ---------- */
+.cover{padding:60px 0 0}
+.cover .kicker{display:flex;gap:14px;align-items:center;color:var(--muted);font-family:var(--sm);
+  font-size:11px;letter-spacing:.13em;text-transform:uppercase;margin-bottom:22px}
+.cover .kicker i{flex:1;height:1px;background:var(--rule);font-style:normal}
+.thesis{font-family:var(--sf);font-size:clamp(17px,2vw,21.5px);line-height:1.6;color:var(--ink-2);
+  max-width:60ch;margin:22px 0 0;font-weight:300}
+.thesis b{color:var(--ink);font-weight:600}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin:40px 0 0;
+  border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.kpi{padding:20px 22px 22px;border-right:1px solid var(--rule-3)}
+.kpi:last-child{border-right:0}
+.kpi b{display:block;white-space:nowrap;font-family:var(--sm);font-size:29px;font-weight:600;letter-spacing:-.025em;
+  font-variant-numeric:tabular-nums;line-height:1.1}
+.kpi span{display:block;font-size:12px;color:var(--muted);margin-top:7px;line-height:1.5}
+.kpi.hi b{color:var(--gold)}
+.alert{margin:26px 0 0;padding:16px 20px;border-left:2px solid var(--gold);background:var(--rule-3);
+  font-size:13.5px;color:var(--ink-2);border-radius:0 4px 4px 0}
+.alert b{color:var(--ink)}
+
+/* ---------- sections ---------- */
+section{padding:56px 0 0;scroll-margin-top:20px}
+section>hr{border:0;border-top:1px solid var(--rule);margin:0 0 44px}
+.h-wrap{display:flex;align-items:baseline;gap:16px;margin-bottom:10px;flex-wrap:wrap}
+.h-num{font-family:var(--sm);font-size:12px;color:var(--gold);letter-spacing:.1em;flex:none;padding-top:4px}
+.dek{color:var(--muted);font-size:13.5px;max-width:74ch;margin:0 0 4px}
+
+/* ---------- tables ---------- */
+.tw{overflow-x:auto;margin:24px 0 0;border-radius:4px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:600px}
+caption{caption-side:bottom;text-align:left;font-size:12px;color:var(--muted);padding-top:11px;line-height:1.6}
+th,td{text-align:right;padding:8.5px 13px;border-bottom:1px solid var(--rule-3);white-space:nowrap}
+th{font-family:var(--sm);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+  font-weight:500;border-bottom:1px solid var(--rule);vertical-align:bottom;padding-bottom:7px}
+td:first-child,th:first-child{text-align:left;white-space:normal}
+td.n,th.n{font-family:var(--sm);font-variant-numeric:tabular-nums}
+td.wide{white-space:normal;min-width:190px;font-size:12.5px;color:var(--muted);line-height:1.55}
+tbody tr:hover{background:var(--rule-3)}
+tr.sum td{border-top:1px solid var(--rule);border-bottom:0;font-weight:600;background:var(--rule-3)}
+tr.grp td{background:var(--rule-3);font-family:var(--sm);font-size:10.5px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted);padding:6px 13px}
+.pos{color:var(--pos)} .neg{color:var(--neg)} .em{color:var(--gold);font-weight:600}
+.chip{font-family:var(--sm);font-size:10px;padding:2px 7px;border-radius:10px;background:var(--rule-2);
+  color:var(--muted);letter-spacing:.03em}
+.chip.g{background:var(--gold-w);color:var(--gold-2)}
+.wbar{display:inline-block;height:6px;background:var(--gold);border-radius:0 2px 2px 0;vertical-align:middle}
+
+/* ---------- charts ---------- */
+figure{margin:28px 0 0}
+figcaption{font-size:12.5px;color:var(--muted);margin-top:13px;max-width:80ch;line-height:1.65}
+figcaption b{color:var(--ink-2)}
+.chart{width:100%;height:auto;display:block;overflow:visible}
+.lg{display:flex;gap:22px;flex-wrap:wrap;margin:0 0 14px;font-size:12.5px;align-items:center}
+.lg span{display:inline-flex;align-items:center;gap:8px;color:var(--ink-2)}
+.lg i{width:14px;height:3px;border-radius:2px;flex:none;font-style:normal}
+.tip{position:fixed;pointer-events:none;background:var(--panel);border:1px solid var(--rule);border-radius:5px;
+  padding:10px 12px;font-size:12px;box-shadow:0 8px 26px rgba(0,0,0,.16);z-index:90;opacity:0;
+  transition:opacity .1s;font-family:var(--sm);font-variant-numeric:tabular-nums;line-height:1.65;max-width:280px}
+.tip b{font-family:var(--ss)}
+
+/* ---------- blocks ---------- */
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:28px;margin-top:26px}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));margin-top:26px;
+  border-top:1px solid var(--rule)}
+.g3>div{padding:18px 20px 20px;border-right:1px solid var(--rule-3)}
+.g3>div:last-child{border-right:0}
+.g3 h4{margin-bottom:6px}
+.g3 p{font-size:13px;color:var(--ink-2);margin:0}
+.find{border-left:2px solid var(--gold);padding:1px 0 1px 20px;margin:26px 0}
+.find h3{margin-bottom:7px}
+.find p{font-size:14.5px}
+.note{background:var(--rule-3);border-radius:5px;padding:17px 20px;font-size:13.5px;color:var(--ink-2);margin:22px 0 0}
+.note b{color:var(--ink)}
+.note.warn{border-left:2px solid var(--rose)}
+ol.rules{counter-reset:r;list-style:none;padding:0;margin:26px 0 0}
+ol.rules li{counter-increment:r;position:relative;padding:0 0 22px 44px}
+ol.rules li::before{content:counter(r);position:absolute;left:0;top:0;font-family:var(--sm);font-size:11px;
+  color:var(--gold);border:1px solid var(--gold);width:25px;height:25px;display:grid;place-items:center;
+  border-radius:50%}
+ol.rules b.t{display:block;font-family:var(--sf);font-size:16.5px;font-weight:600;margin-bottom:3px}
+ol.rules p{font-size:14px;color:var(--ink-2);margin:0}
+ul.lim{padding-left:19px;margin:24px 0 0}
+ul.lim li{margin-bottom:13px;font-size:14px;color:var(--ink-2)}
+ul.lim li b{color:var(--ink)}
+.heat{display:grid;gap:2px;min-width:640px}
+.heat div{height:40px;display:grid;place-items:center;font-family:var(--sm);font-size:10.5px;
+  border-radius:2px;font-variant-numeric:tabular-nums}
+.heat .lb{font-family:var(--ss);font-size:11.5px;color:var(--ink-2);justify-content:end;padding-right:11px;
+  background:none}
+.heat .lt{height:26px;font-family:var(--ss);font-size:11px;color:var(--muted);align-items:end;background:none}
+footer{padding:52px 0 70px;margin-top:56px;border-top:1px solid var(--rule);color:var(--muted);font-size:12.5px}
+footer p{max-width:80ch}
+@media (max-width:900px){
+  .shell{grid-template-columns:1fr} nav{position:static;height:auto;border-right:0;
+    border-bottom:1px solid var(--rule);padding:24px 20px}
+  nav ol{display:flex;flex-wrap:wrap;gap:2px 14px} nav .foot{display:none}
+  main{padding:0 20px} .cover{padding:34px 0 0}
+  .kpi{border-right:0;border-bottom:1px solid var(--rule-3)}
+  .g3>div{border-right:0;border-bottom:1px solid var(--rule-3)}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+</style>
+<div class="shell">
+<nav>
+  <div class="brand">定投组合<br>作战手册</div>
+  <div class="sub">2026·09 / 全市场回测</div>
+  <ol>
+    <li><a href="#s1">结论与方案</a></li>
+    <li><a href="#s2">为什么这样配</a></li>
+    <li><a href="#s3">起点敏感性</a></li>
+    <li><a href="#s4">全周期矩阵</a></li>
+    <li><a href="#s5">稳健性检验</a></li>
+    <li><a href="#s6">未来能赚多少</a></li>
+    <li><a href="#s7">执行手册</a></li>
+    <li><a href="#s8">相关性机制</a></li>
+    <li><a href="#s9">局限与自我修正</a></li>
+    <li><a href="#s10">数据与方法</a></li>
+  </ol>
+  <div class="foot">回测区间 2005-01 → 2026-09<br>主窗口 18.7 年 · 225 个月<br>27,790 只基金名录<br>4,462 只指数基金<br><br>不构成投资建议</div>
+</nav>
+<main>
+
+<div class="cover">
+  <div class="kicker"><span>基金定投量化研究</span><i></i><span>数据截至 2026-09-04</span></div>
+  <h1>把定投的成败，<br>从运气手里拿回来</h1>
+  <p class="thesis">决定长期定投结果的，不是你选中了哪只明星基金，而是<b>你碰巧在哪一年开始</b>。
+    同一只沪深300基金，2005 年起投年化 <span class="mono">9.5%</span>，2008 年起投只有 <span class="mono">2.0%</span>——
+    差距不来自选基能力，来自运气。<b>这份方案的全部目的，是把这个运气变量压到最小。</b></p>
+
+  <div class="kpi-row">
+    <div class="kpi hi"><b>0.58<span style="display:inline;font-size:17px;letter-spacing:0">pp</span></b><span>本方案在 4 个不同起点窗口下，10 年定投中位收益的<em>极差</em></span></div>
+    <div class="kpi"><b>3.29<span style="display:inline;font-size:17px;letter-spacing:0">pp</span></b><span>同口径下全仓沪深300 的极差</span></div>
+    <div class="kpi hi"><b>0%</b><span>定投满 3 年及以上的亏损概率（14 个起投年全覆盖）</span></div>
+    <div class="kpi"><b>10.98%</b><span>18.7 年全程定投年化 IRR<br>（同期沪深300：5.47%）</span></div>
+    <div class="kpi"><b>0.34%</b><span>组合加权年持有费率</span></div>
+  </div>
+
+  <div class="alert"><b>先说最重要的一句：不要把 10.98% 当成预期。</b>
+    那是历史。用三种彼此独立的方法（估值自下而上、蒙特卡洛前瞻、历史收益打折）交叉验证，
+    这套组合面向未来 20 年的<b>合理预期是年化 5.5%–7%</b>，详见第 6 节。
+    历史回测的价值不在于告诉你能赚多少，而在于告诉你<em>最坏能有多坏</em>。</div>
+</div>
+
+<section id="s1"><hr>
+  <div class="h-wrap"><span class="h-num">01</span><h2>结论与方案</h2></div>
+  <p class="dek">权重由「最大化滚动 10 年定投 IRR 的 10% 分位数」优化得到——目标是抬高<em>最差情况</em>，不是最好情况。
+    基金从全市场同标的产品中按「年费率最低 + 规模 ≥ 2 亿 + 成立满 1 年」筛出。</p>
+
+  <div class="tw"><table>
+    <caption>基金为 2026-09-04 的筛选结果；费率含管理费+托管费+销售服务费。基金公司降费频繁，建议每年复核一次。</caption>
+    <thead><tr><th>资产</th><th class="n">权重</th><th></th><th>推荐基金（场外 A 类）</th><th class="n">代码</th><th class="n">年费率</th><th class="n">规模</th><th>为什么是它</th></tr></thead>
+    <tbody>
+      <tr><td><b>A股红利</b></td><td class="n em">24%</td><td style="width:64px"><i class="wbar" style="width:100%"></i></td>
+        <td>易方达中证红利ETF联接A</td><td class="n">009051</td><td class="n">0.20%</td><td class="n">45.5亿</td>
+        <td class="wide">A股唯一在四个起点下都稳定的权益资产（8.4%–9.9%）；当前股息率 4.43%</td></tr>
+      <tr><td><b>A股中证500</b></td><td class="n">6%</td><td><i class="wbar" style="width:25%"></i></td>
+        <td>易方达中证500ETF联接发起式A</td><td class="n">007028</td><td class="n">0.20%</td><td class="n">21.4亿</td>
+        <td class="wide">补中盘敞口，避免红利过度集中于银行、煤炭、公用事业</td></tr>
+      <tr><td><b>港股红利</b></td><td class="n">10%</td><td><i class="wbar" style="width:42%"></i></td>
+        <td>易方达恒生红利低波ETF联接A</td><td class="n">021457</td><td class="n">0.20%</td><td class="n">20.3亿</td>
+        <td class="wide">全球最便宜的高股息资产；同类费率普遍 0.60%，此只为 1/3</td></tr>
+      <tr><td><b>美股标普500</b></td><td class="n">18%</td><td><i class="wbar" style="width:75%"></i></td>
+        <td>摩根标普500指数(QDII)人民币A</td><td class="n">017641</td><td class="n">0.65%</td><td class="n">53.0亿</td>
+        <td class="wide">与A股月度相关性仅 0.23，是组合的分散主力</td></tr>
+      <tr><td><b>美股纳指100</b></td><td class="n">14%</td><td><i class="wbar" style="width:58%"></i></td>
+        <td>嘉实纳斯达克100ETF联接(QDII)A</td><td class="n">016532</td><td class="n">0.60%</td><td class="n">20.8亿</td>
+        <td class="wide">同标的最低费率（对手盘 0.80–1.30%）。<b>权重被我主动压低</b>，见 05 节</td></tr>
+      <tr><td><b>黄金</b></td><td class="n">13%</td><td><i class="wbar" style="width:54%"></i></td>
+        <td>华夏黄金ETF联接A</td><td class="n">008701</td><td class="n">0.20%</td><td class="n">25.2亿</td>
+        <td class="wide">与A股相关性 0.00、与美股 −0.08。配它是买保险，不是买收益</td></tr>
+      <tr><td><b>债券</b></td><td class="n">15%</td><td><i class="wbar" style="width:63%"></i></td>
+        <td>南方中债7-10年国开行债券指数A</td><td class="n">006961</td><td class="n">0.20%</td><td class="n">77.7亿</td>
+        <td class="wide">纯利率债，最大回撤 −4.9%；不用二级债基（与A股相关性高达 0.69）</td></tr>
+      <tr class="sum"><td>合计</td><td class="n">100%</td><td></td><td colspan="2">7 只场外基金 · 起购多为 10 元</td><td class="n">0.34%</td><td colspan="2" style="text-align:left">加权年持有成本</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="note"><b>嫌 7 只太多？用 5 只，几乎不损失什么。</b>
+    A股红利 28% ／ 标普500 17% ／ 纳指100 15% ／ 黄金 15% ／ 债券 25%。
+    实盘窗口下 10 年定投中位 <span class="mono">11.15%</span>、最差 <span class="mono">9.92%</span>、最大回撤 <span class="mono">−10.2%</span>，
+    比 7 只版更平滑。<b>第 5 节的权重扰动实验证明：权重随机偏移 ±8 个百分点，中位收益几乎不动。</b>
+    所以别在小数点后纠结，配齐大类比精确权重重要得多。</div>
+
+  <div class="g3">
+    <div><h4>买哪类份额</h4><p>一律 <b>A 类</b>。第三方平台申购费 1 折约 0.12%（一次性），C 类销售服务费约 0.2%<em>每年</em>。持有 1 年 A 类即胜出，20 年差 <span class="mono">3.9%</span>。</p></div>
+    <div><h4>频率与日期</h4><p><b>月投即可。</b>实测每月第 1 个交易日略优于第 15 个，12.6 年累计差 1.6%（年化 0.1%）——在噪音范围内，不值得为此增加负担。</p></div>
+    <div><h4>最短持有</h4><p><b>5 年起。</b>矩阵显示满 3 年后所有起投年均为正，但 3 年最差仅 +1.03%；到 5 年最差升至 +5.19%。</p></div>
+  </div>
+</section>
+<section id="s2"><hr>
+  <div class="h-wrap"><span class="h-num">02</span><h2>为什么这样配</h2></div>
+  <p class="dek">主窗口 2008-01 至 2026-09（225 个月），指数全收益口径，已扣模拟基金年费与 0.12% 申购费，
+    月度定投、以新增资金补低配的方式再平衡。所有结论均在另外三个起点窗口复核过。</p>
+
+  <div class="find">
+    <h3>一、单押 A 股宽基，定投 5 年有 26% 的概率是亏的</h3>
+    <p class="prose">把每一个月都当作起投点，全仓沪深300 定投满 5 年：中位年化 <span class="mono">6.22%</span>，
+      但 10% 分位 <span class="mono neg">−4.08%</span>、最差 <span class="mono neg">−8.13%</span>，
+      <span class="mono">26.2%</span> 的起点在 5 年后仍是浮亏。本方案同期是 <span class="mono">10.73%</span> 中位、
+      最差 <span class="mono pos">+3.36%</span>、亏损概率 <span class="mono pos">0%</span>。</p>
+  </div>
+  <div class="find">
+    <h3>二、A 股能定投的是「红利」，不是宽基，更不是小盘成长</h3>
+    <p class="prose">用「滚动 10 年定投 IRR 中位数」在四个起点窗口下横比：A股红利 <span class="mono">8.43%–9.86%</span>、
+      沪深300 <span class="mono">2.73%–6.02%</span>、中证500 <span class="mono">1.17%–5.81%</span>。
+      红利不仅收益更高，<b>波动区间还只有宽基的三分之一</b>。
+      「小盘弹性大所以适合定投」在数据上不成立：中证500 在 2013 年起投的窗口里，10 年定投中位只有 <span class="mono">1.17%</span>。</p>
+  </div>
+  <div class="find">
+    <h3>三、分散不只降低风险，它直接抬高了下限</h3>
+    <p class="prose">本方案定投 10 年的<em>最差</em>结果是 <span class="mono pos">+8.17%</span>——
+      比全仓沪深300 的<em>中位数</em>（<span class="mono">5.97%</span>）还高出 2.2 个百分点。
+      机制在相关性：黄金与 A 股月度相关性 <span class="mono">0.00</span>、与美股 <span class="mono">−0.08</span>，
+      美股与 A 股仅 <span class="mono">0.23</span>。2015、2018 年 A 股崩盘时它们不同步下跌，
+      定投的钱因此持续买在别处的低位，而不是一起套牢。</p>
+  </div>
+
+  <figure>
+    <div class="lg"><span><i style="background:var(--gold)"></i>本方案 · 账户市值</span>
+      <span><i style="background:var(--blue)"></i>全仓沪深300 · 市值</span>
+      <span><i style="background:var(--muted)"></i>累计投入本金</span></div>
+    <svg id="c1" class="chart" viewBox="0 0 1000 370" role="img"
+      aria-label="2008至2026年每月定投1000元的账户市值：本方案终值68.6万元，沪深300为38.2万元，累计投入22.3万元"></svg>
+    <figcaption>每月定投 1,000 元，2008-01 起至 2026-09（225 个月，累计投入 <span class="mono">223,000</span> 元）。
+      本方案终值 <span class="mono">686,036</span> 元（IRR <span class="mono">10.98%</span>），
+      全仓沪深300 为 <span class="mono">381,657</span> 元（IRR <span class="mono">5.47%</span>）。
+      <b>注意 2008、2015、2018、2022 四次 A 股大跌时两条线的分化——那正是分散在起作用。</b></figcaption>
+  </figure>
+
+  <figure style="margin-top:46px">
+    <div class="lg"><span><i style="background:var(--gold)"></i>本方案</span>
+      <span><i style="background:var(--blue)"></i>全仓沪深300</span>
+      <span><i style="background:var(--muted);height:1px;border-top:1px dashed var(--muted)"></i>盈亏平衡线</span></div>
+    <svg id="c2" class="chart" viewBox="0 0 1000 330" role="img"
+      aria-label="按起投月份排列的10年定投年化收益率：本方案全部落在8.2%以上，沪深300在-0.3%到10.4%之间大幅波动"></svg>
+    <figcaption><b>这张图是整份方案的核心论据。</b>横轴是「你哪个月开始定投」，纵轴是定投满 10 年后的年化 IRR。
+      本方案被压在 <span class="mono">8.17%–11.95%</span> 的窄带内——<em>无论你从哪个月开始</em>；
+      沪深300 则在 <span class="mono">−0.30%</span> 到 <span class="mono">10.38%</span> 之间起伏，把结果交给了运气。</figcaption>
+  </figure>
+
+  <div class="tw"><table style="margin-top:38px">
+    <caption>主窗口 2008-01→2026-09。「中位浮亏」= 定投过程中账户相对累计投入的最大浮亏中位数，衡量你要忍受多难看的账面。</caption>
+    <thead><tr><th>期限</th><th>方案</th><th class="n">中位 IRR</th><th class="n">10% 分位</th><th class="n">90% 分位</th><th class="n">最差</th><th class="n">亏损概率</th><th class="n">中位浮亏</th><th class="n">起点样本</th></tr></thead>
+    <tbody id="tbl-stat"></tbody>
+  </table></div>
+</section>
+
+<section id="s3"><hr>
+  <div class="h-wrap"><span class="h-num">03</span><h2>起点敏感性：这份研究最重要的一张表</h2></div>
+  <p class="dek">同一个资产、同样的持有方式，只因为开始的年份不同，结果可以差出好几倍。
+    下面用统一口径（该窗口内滚动 10 年定投 IRR 的中位数）横比所有资产与本方案。<b>极差越小 = 结果越不取决于运气。</b></p>
+
+  <figure>
+    <svg id="c3" class="chart" viewBox="0 0 1000 430" role="img"
+      aria-label="各资产在四个起点窗口下的10年定投收益区间：本方案极差仅0.58个百分点，黄金8.73、中证500 4.64"></svg>
+    <figcaption>每条线段的两端是该资产在四个起点窗口（2005/2008/2011/2013 起）中的最低与最高值，圆点是四次的实际取值。
+      <b>线段越短，说明"什么时候开始"越不重要。</b>黄金单独看极差高达 8.73pp（它自己也很挑时点），
+      但把它放进组合后，整体极差反而是全场最小的 0.58pp——这就是相关性的作用。</figcaption>
+  </figure>
+
+  <div class="tw"><table>
+    <caption>债券极差虽小（0.14pp）但收益仅 4.3%；本方案在收益率第三高的同时把极差压到了 0.58pp。</caption>
+    <thead><tr><th>资产 / 组合</th><th class="n">2005 起</th><th class="n">2008 起</th><th class="n">2011 起</th><th class="n">2013 起</th><th class="n">区间</th><th class="n">极差</th><th>解读</th></tr></thead>
+    <tbody id="tbl-sens"></tbody>
+  </table></div>
+</section>
+<section id="s4"><hr>
+  <div class="h-wrap"><span class="h-num">04</span><h2>全周期矩阵：任何一年开始，持有任何时长</h2></div>
+  <p class="dek">每一格是「从该年 1 月开始定投、持有该期限」的年化 IRR。这是最直白的一张表——
+    你可以直接找到自己打算开始的那一年，横着读过去。</p>
+
+  <figure>
+    <div class="lg"><span><i style="background:linear-gradient(90deg,var(--neg),var(--rule-2),var(--gold));height:10px;width:64px;border-radius:2px"></i>亏损 ← → 高收益</span>
+      <span style="color:var(--muted)">灰格 = 数据尚不足该期限</span></div>
+    <div class="tw"><div id="mx"></div></div>
+    <figcaption>上半为本方案，下半为全仓沪深300。
+      <b>本方案从第 3 年起，14 个起投年无一亏损；沪深300 要到第 10 年才做到。</b>
+      注意此表按整年 1 月起投，样本仅 14 个，统计意义弱于第 02 节的逐月滚动（100+ 样本），
+      两者结论一致时才可采信。</figcaption>
+  </figure>
+
+  <div class="tw"><table style="margin-top:34px">
+    <caption>按期限汇总 14 个起投年的分布。「亏损年数」= 该期限下收益为负的起投年个数。</caption>
+    <thead><tr><th>持有期限</th><th>方案</th><th class="n">最好</th><th class="n">中位</th><th class="n">最差</th><th class="n">亏损年数</th><th>结论</th></tr></thead>
+    <tbody>
+      <tr><td rowspan="2"><b>1 年</b></td><td>本方案</td><td class="n">55.57%</td><td class="n">13.02%</td><td class="n neg">−17.04%</td><td class="n">3 / 14</td><td class="wide" rowspan="2">一年期就是赌博，两者都不可靠</td></tr>
+      <tr><td>沪深300</td><td class="n">116.06%</td><td class="n">5.71%</td><td class="n neg">−34.52%</td><td class="n neg">6 / 14</td></tr>
+      <tr><td rowspan="2"><b>3 年</b></td><td>本方案</td><td class="n">19.76%</td><td class="n em">10.31%</td><td class="n pos">+1.03%</td><td class="n pos">0 / 14</td><td class="wide" rowspan="2">分水岭：本方案在此转正，沪深300 仍有 6 年亏损</td></tr>
+      <tr><td>沪深300</td><td class="n">30.14%</td><td class="n">6.60%</td><td class="n neg">−12.28%</td><td class="n neg">6 / 14</td></tr>
+      <tr><td rowspan="2"><b>5 年</b></td><td>本方案</td><td class="n">14.60%</td><td class="n em">11.54%</td><td class="n pos">+5.19%</td><td class="n pos">0 / 13</td><td class="wide" rowspan="2">推荐的最短持有期：最差也有 5.19%</td></tr>
+      <tr><td>沪深300</td><td class="n">16.32%</td><td class="n">7.38%</td><td class="n neg">−5.41%</td><td class="n neg">4 / 13</td></tr>
+      <tr><td rowspan="2"><b>7 年</b></td><td>本方案</td><td class="n">13.18%</td><td class="n em">11.59%</td><td class="n pos">+7.56%</td><td class="n pos">0 / 11</td><td class="wide" rowspan="2">区间开始明显收窄</td></tr>
+      <tr><td>沪深300</td><td class="n">14.21%</td><td class="n">6.68%</td><td class="n neg">−2.15%</td><td class="n">1 / 11</td></tr>
+      <tr><td rowspan="2"><b>10 年</b></td><td>本方案</td><td class="n">12.22%</td><td class="n em">10.56%</td><td class="n pos">+8.17%</td><td class="n pos">0 / 8</td><td class="wide" rowspan="2">最好与最差只差 4 个百分点</td></tr>
+      <tr><td>沪深300</td><td class="n">12.13%</td><td class="n">5.18%</td><td class="n">+1.11%</td><td class="n">0 / 8</td></tr>
+      <tr><td rowspan="2"><b>15 年</b></td><td>本方案</td><td class="n">11.61%</td><td class="n em">10.76%</td><td class="n pos">+9.80%</td><td class="n pos">0 / 3</td><td class="wide" rowspan="2">收敛到 1.8pp 区间内（样本仅 3，仅供参考）</td></tr>
+      <tr><td>沪深300</td><td class="n">6.35%</td><td class="n">4.47%</td><td class="n">+2.87%</td><td class="n">0 / 3</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s5"><hr>
+  <div class="h-wrap"><span class="h-num">05</span><h2>稳健性检验：这套权重是真规律还是过拟合？</h2></div>
+  <p class="dek">任何在历史上跑出来的组合都可能只是"事后诸葛亮"。下面四个检验专门用来拆穿这一点，
+    其中第一个（样本外）是判断过拟合的黄金标准。</p>
+
+  <h3 style="margin-top:34px">检验一 · 样本外 Walk-Forward</h3>
+  <p class="prose" style="margin-top:8px">用历史前半段优化权重，然后拿到<em>模型从未见过的</em>后半段实测。
+    如果权重是真规律，样本外应该站得住；如果是过拟合，样本外会显著衰减。</p>
+  <div class="tw"><table>
+    <caption>四组切分，各自在训练段独立优化（约 3,500 次随机搜索），再在测试段做全程定投。</caption>
+    <thead><tr><th>训练 → 测试</th><th class="n">训练段最优权重</th><th class="n">★ 本方案（固定）</th><th class="n">等权 7 资产</th><th class="n">全仓沪深300</th><th class="n">最优 − 本方案</th></tr></thead>
+    <tbody id="tbl-wf"></tbody>
+  </table></div>
+  <div class="note"><b>结果出人意料，但方向很明确：本方案在样本外平均反而比"训练段最优权重"高 0.24pp。</b>
+    这说明训练段挖出来的"最优"到了新数据上就失效了——那是噪音，不是规律。
+    同时，等权 7 资产（<span class="mono">11.30%</span>）也和精心优化的权重差不多，
+    而全仓沪深300 只有 <span class="mono">4.94%</span>。
+    <b>真正创造差距的是"分散到 7 类资产"这个决定本身，不是权重的小数点。</b></div>
+
+  <h3 style="margin-top:38px">检验二 · 权重扰动</h3>
+  <p class="prose" style="margin-top:8px">既然权重不重要，那到底能错多少？直接随机扰动试试。</p>
+  <div class="tw"><table>
+    <caption>每档随机生成 150 组权重（在基准上加均匀噪声后归一化），各自跑完整的滚动 10 年定投。</caption>
+    <thead><tr><th>扰动幅度</th><th class="n">中位 IRR 范围</th><th class="n">中位 IRR 均值</th><th class="n">对比基准</th><th class="n">最差 IRR 均值</th><th>全部起点仍为正？</th></tr></thead>
+    <tbody id="tbl-pert"></tbody>
+  </table></div>
+  <p class="prose" style="font-size:13.5px;color:var(--muted);margin-top:12px">
+    把每个资产的权重随机推移最多 8 个百分点（例如红利从 24% 变成 16% 或 32%），中位收益仍是 <span class="mono">10.30%</span>，
+    与精确权重的 <span class="mono">10.31%</span> 没有区别。<b>照着表格配就行，差几个点无所谓。</b></p>
+
+  <h3 style="margin-top:38px">检验三 · Block Bootstrap</h3>
+  <p class="prose" style="margin-top:8px">历史只发生过一次。用 12 个月为一块重新洗牌、生成 4,000 条"平行历史"，
+    看这套组合在没发生过但可能发生的路径里表现如何。这比滚动窗口更严苛，因为它会拼出历史上从未出现的连续厄运。</p>
+  <figure>
+    <div class="lg"><span><i style="background:var(--gold)"></i>本方案</span><span><i style="background:var(--blue)"></i>全仓沪深300</span></div>
+    <svg id="c4" class="chart" viewBox="0 0 1000 300" role="img"
+      aria-label="Bootstrap模拟的10年定投收益分布：本方案集中在10%附近，亏损概率1.93%；沪深300分布更宽，亏损概率27.35%"></svg>
+    <figcaption>4,000 条重采样路径下的 10 年定投 IRR 分布。本方案中位 <span class="mono">10.44%</span>、
+      5% 分位 <span class="mono">2.66%</span>、亏损概率 <span class="mono">1.93%</span>；
+      沪深300 中位 <span class="mono">5.17%</span>、5% 分位 <span class="mono neg">−8.79%</span>、亏损概率 <span class="mono neg">27.35%</span>。
+      <b>注意这里的亏损概率（1.93%）高于滚动窗口的 0%——洗牌破坏了真实历史中的均值回归，这是更保守的估计。</b></figcaption>
+  </figure>
+
+  <h3 style="margin-top:38px">检验四 · 收益率压力情景</h3>
+  <p class="prose" style="margin-top:8px">回测窗口里美股正处在史上最强的科技周期之一。
+    把各类资产的收益率<em>强行下调</em>后重跑，保留其波动与相关结构，看结论是否还站得住。</p>
+  <div class="tw"><table>
+    <caption>在月度收益序列上做均值平移，保留波动率与协方差结构不变。滚动 10 年定投。</caption>
+    <thead><tr><th>情景</th><th class="n">★ 本方案 中位</th><th class="n">10% 分位</th><th class="n">最差</th><th class="n">全仓沪深300</th><th class="n">300+债 60/40</th></tr></thead>
+    <tbody>
+      <tr><td>基准 · 历史原样</td><td class="n em">10.96%</td><td class="n">9.76%</td><td class="n">8.69%</td><td class="n">6.04%</td><td class="n">5.95%</td></tr>
+      <tr><td>温和降温 · 美股 −3% ／ A股 −1%</td><td class="n em">9.21%</td><td class="n">7.94%</td><td class="n">6.95%</td><td class="n">5.00%</td><td class="n">5.33%</td></tr>
+      <tr><td>美股大幅降温 −6%</td><td class="n em">8.25%</td><td class="n">6.99%</td><td class="n">6.02%</td><td class="n">6.04%</td><td class="n">5.95%</td></tr>
+      <tr><td>美股 −6% 且债券 −1.5%（低利率）</td><td class="n em">7.95%</td><td class="n">6.68%</td><td class="n">5.72%</td><td class="n">5.33%</td><td class="n">5.33%</td></tr>
+      <tr><td>A股复苏 +3% 且美股 −6%</td><td class="n">9.22%</td><td class="n">7.95%</td><td class="n">6.96%</td><td class="n">9.18%</td><td class="n">7.85%</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note"><b>方案不依赖美股继续跑赢。</b>即使美股年化被砍掉 6 个百分点、债券再砍 1.5 个点，
+    10 年定投中位仍有 <span class="mono">7.95%</span>、最差 <span class="mono">5.72%</span>。
+    唯一让本方案落后的情景是「A 股大幅复苏而美股崩溃」——而组合里 30% 的 A 股 + 10% 港股正是为此存在：
+    <b>它不会让你完全错过。</b></div>
+
+  <div class="note warn"><b>一处我主动违背优化结果的地方，以及它的代价。</b>
+    优化器在三个不同窗口里都给纳斯达克 <span class="mono">21%–26%</span> 的权重，我压到了 <span class="mono">14%</span>。
+    理由不在数据里，而在数据之外：2008–2026 是纳指史上最强的周期之一，且当前美股估值与前十大集中度都处于历史高位。
+    代价是可量化的——优化解 10 年定投中位 <span class="mono">11.71%</span>，本方案 <span class="mono">10.31%</span>，
+    <b>我为"不押注美股科技持续跑赢"付出了约 1.4pp／年</b>。你如果不认同这个判断，把纳指调回 20% 即可，
+    权重扰动实验说明这不会破坏组合。</div>
+</section>
+<section id="s6"><hr>
+  <div class="h-wrap"><span class="h-num">06</span><h2>未来 20 年，这套组合能赚多少</h2></div>
+  <p class="dek">这是全篇最该被认真读、也最该被打折看的一节。历史回测的 10.98% 不是预期。
+    下面用三种<em>彼此独立</em>的方法估计未来，它们的交集才是合理预期。</p>
+
+  <h3 style="margin-top:32px">方法一 · 自下而上的估值模型</h3>
+  <p class="prose" style="margin-top:8px">长期收益 ≈ 股息率 ＋ 盈利增长 ＋ 估值变化。前两项可观测，第三项按当前估值分位给保守假设。</p>
+  <div class="tw"><table>
+    <caption>估值数据取自中证指数官网与乐咕乐股，2026-09-04。盈利增长与估值回归为作者假设，属主观判断，读者可自行替换。</caption>
+    <thead><tr><th>资产</th><th class="n">权重</th><th class="n">当前股息率</th><th class="n">假设盈利增长</th><th class="n">估值回归</th><th class="n">预期年化</th><th class="n">对组合贡献</th><th>假设依据</th></tr></thead>
+    <tbody>
+      <tr><td>A股红利</td><td class="n">24%</td><td class="n">4.43%</td><td class="n">2.5%</td><td class="n">±0.0%</td><td class="n">6.93%</td><td class="n em">1.66pp</td><td class="wide">PE 8.3 处历史低位，不给估值贡献（保守）</td></tr>
+      <tr><td>A股中证500</td><td class="n">6%</td><td class="n">1.22%</td><td class="n">5.0%</td><td class="n neg">−0.5%</td><td class="n">5.70%</td><td class="n">0.34pp</td><td class="wide">PE 26.6，近 10 年 78% 分位</td></tr>
+      <tr><td>港股红利</td><td class="n">10%</td><td class="n">6.80%</td><td class="n">1.5%</td><td class="n pos">+0.5%</td><td class="n">8.80%</td><td class="n em">0.88pp</td><td class="wide">全球估值洼地，给轻微正贡献</td></tr>
+      <tr><td>美股标普500</td><td class="n">18%</td><td class="n">1.20%</td><td class="n">5.5%</td><td class="n neg">−1.5%</td><td class="n">5.20%</td><td class="n">0.94pp</td><td class="wide">CAPE 高位，给负贡献</td></tr>
+      <tr><td>美股纳指100</td><td class="n">14%</td><td class="n">0.60%</td><td class="n">8.0%</td><td class="n neg">−2.5%</td><td class="n">6.10%</td><td class="n">0.85pp</td><td class="wide">估值与集中度最高，给较大负贡献</td></tr>
+      <tr><td>黄金</td><td class="n">13%</td><td class="n">—</td><td class="n">3.5%</td><td class="n">±0.0%</td><td class="n">3.50%</td><td class="n">0.46pp</td><td class="wide">长期约等于通胀 +1~2%</td></tr>
+      <tr><td>债券</td><td class="n">15%</td><td class="n">1.68%</td><td class="n">0.5%</td><td class="n">±0.0%</td><td class="n">2.18%</td><td class="n">0.33pp</td><td class="wide">10 年国债仅 1.68%，久期收益有限</td></tr>
+      <tr class="sum"><td>合计</td><td class="n">100%</td><td colspan="4" style="text-align:right">组合毛预期</td><td class="n em">5.46pp</td><td style="text-align:left">扣 0.34% 费率后 <b>5.12%</b></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 style="margin-top:38px">方法二 · 蒙特卡洛前瞻 20 年</h3>
+  <p class="prose" style="margin-top:8px">用历史的均值、波动与资产间协方差结构，模拟 6,000 条未来 20 年路径，每月定投。
+    三档情景分别是"历史重演"、"股票类收益打 8 折"、"打 6 折"。</p>
+  <figure>
+    <div class="lg"><span><i style="background:var(--gold)"></i>历史重演</span>
+      <span><i style="background:var(--rose)"></i>股票打 8 折</span>
+      <span><i style="background:var(--blue)"></i>股票打 6 折</span></div>
+    <svg id="c5" class="chart" viewBox="0 0 1000 300" role="img"
+      aria-label="蒙特卡洛模拟的20年定投收益分布：历史重演情景中位8.73%，打8折6.90%，打6折5.15%"></svg>
+    <figcaption>20 年定投 IRR 的模拟分布。即使在"股票收益打 6 折"这一相当悲观的情景下，
+      中位仍有 <span class="mono">5.15%</span>，亏损概率 <span class="mono">6.60%</span>。
+      作为对照，全仓沪深300 在历史重演情景下的 20 年定投中位仅 <span class="mono">2.33%</span>、
+      亏损概率高达 <span class="mono neg">36.33%</span>。</figcaption>
+  </figure>
+
+  <div class="tw"><table style="margin-top:30px">
+    <caption>三种方法互不依赖：估值模型自下而上、蒙特卡洛基于协方差结构、压力测试基于历史序列平移。</caption>
+    <thead><tr><th>方法</th><th class="n">预期年化</th><th class="n">悲观（5% 分位）</th><th>性质</th></tr></thead>
+    <tbody>
+      <tr><td>历史回测 · 10 年定投中位</td><td class="n">10.31%</td><td class="n">8.17%（实际最差）</td><td class="wide">已发生的过去，含窗口特殊性，<b>不可作为预期</b></td></tr>
+      <tr><td>蒙特卡洛 · 历史重演</td><td class="n">8.73%</td><td class="n">3.18%</td><td class="wide">假设未来分布与过去一致</td></tr>
+      <tr><td>蒙特卡洛 · 股票打 8 折</td><td class="n em">6.90%</td><td class="n">1.37%</td><td class="wide">较合理的中性情景</td></tr>
+      <tr><td>估值自下而上模型</td><td class="n em">5.46%</td><td class="n">—</td><td class="wide">基于当前股息率与估值分位</td></tr>
+      <tr><td>蒙特卡洛 · 股票打 6 折</td><td class="n">5.15%</td><td class="n neg">−0.45%</td><td class="wide">悲观情景</td></tr>
+      <tr class="sum"><td><b>合理预期区间</b></td><td class="n em">5.5% – 7%</td><td class="n">1%–3%</td><td style="text-align:left">三种方法的交集</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="note"><b>把这个数字放到你的 20 年计划里：</b>月投 5,000 元、按年化 6% 计，20 年后约 <span class="mono">231 万</span>（本金 120 万）；
+    按 7% 约 <span class="mono">260 万</span>；按 5% 约 <span class="mono">206 万</span>。
+    如果你按 10% 去做人生规划（约 <span class="mono">380 万</span>），大概率会失望。
+    <b>低预期 + 长期坚持，比高预期 + 中途放弃，结果好得多。</b></div>
+</section>
+
+<section id="s7"><hr>
+  <div class="h-wrap"><span class="h-num">07</span><h2>执行手册</h2></div>
+  <p class="dek">每条规则后面都跟着回测数字，其中第 1、5 条与大多数人的直觉相反。</p>
+  <ol class="rules">
+    <li><b class="t">不要止盈。</b>
+      <p>回测「浮盈 30% 就清仓、转理财、再重新定投」这一常见做法：10 年定投 IRR 从 <span class="mono">10.91%</span>
+        掉到 <span class="mono neg">5.15%</span>，直接腰斩。浮盈 50% 止盈也只剩 <span class="mono">7.85%</span>。
+        止盈的本质是在牛市初期卖掉未来最能复利的仓位。<b>唯一该卖的时点，是你真的要用这笔钱的时候。</b></p></li>
+    <li><b class="t">用新钱做再平衡，不要单独调仓。</b>
+      <p>每月定投时，把当月的钱<em>全部</em>投给当前低于目标权重的那几只，超配的那只这个月就不买。
+        举例：账户 7 万，目标红利 35%／标普 30%／黄金 15%／债券 20%，现在标普涨到 42.9% 超配了，
+        这月的 2,000 元就按缺口比例分给红利 <span class="mono">1,000</span>、债券 <span class="mono">846</span>、黄金 <span class="mono">154</span>，标普 0。
+        缺口 = 目标市值 − 当前市值，目标市值按<em>投入新钱后的总额</em>算。
+        实测五种再平衡规则的 10 年 IRR 差异全在 <span class="mono">0.15pp</span> 以内——所以选那个不花钱的。</p></li>
+    <li><b class="t">账户超过年投入额的 20 倍后，改成年度再平衡。</b>
+      <p>新钱再平衡有前提：新钱得够大。月投 2,000（年 2.4 万）时，账户 10 万能年调 24% 的权重，
+        50 万只剩 4.8%，200 万只剩 1.2%。上面那个例子里，标普要 <span class="mono">15 个月</span>才被稀释回 30%。
+        <b>账户约 50 万后（月投 2,000 的情形），每年固定一天做一次真正的卖出再平衡。</b></p></li>
+    <li><b class="t">下跌时照投，别停。</b>
+      <p>定投相对一次性投入的全部优势都在最差情况上：10 年期定投最差 <span class="mono">8.85%</span> vs 一次性 <span class="mono">5.15%</span>。
+        这个优势来自崩盘时买到的便宜筹码。<b>在你最不想扣款的月份停投，等于主动放弃定投唯一的超额来源。</b>
+        （诚实补充：3 年期定投在中位和最差上都<em>输给</em>一次性——短期里"钱在场的时间"更重要。定投的优势要 5 年以上才显现。）</p></li>
+    <li><b class="t">逆势加码效果有限，别为它囤太多现金。</b>
+      <p>「相对近 12 月高点每跌 10% 就翻倍投」，本方案 10 年 IRR 从 <span class="mono">10.31%</span> 升到 <span class="mono">10.49%</span>，
+        只有 <span class="mono">+0.18pp</span>，代价是总投入从 12 万涨到 15.2 万。
+        同一规则用在波动更大的沪深300 上效果明显得多（<span class="mono">+1.06pp</span>），但投入要从 12 万暴增到 35.7 万。
+        <b>组合本身已经够平滑，加码的边际价值不大。</b></p></li>
+    <li><b class="t">递增定投增加的是财富，不是收益率。</b>
+      <p>每年提高 15% 投入额，10 年 IRR 从 <span class="mono">10.31%</span> 到 <span class="mono">10.37%</span>——几乎不变；
+        但中位终值从 <span class="mono">20.5 万</span> 变成 <span class="mono">39.7 万</span>。
+        <b>想要更多钱就投更多钱，别指望靠技巧。</b>随工资涨定投额，是这份方案里性价比最高的动作。</p></li>
+    <li><b class="t">只在人生变化时改权重，不在行情变化时改。</b>
+      <p>结婚、买房、生育、临近退休——这些改变的是你的期限与现金流，才是调整理由。
+        「美股涨太多要不要减」属于择时；样本外检验已经说明，基于历史收益的权重调整跑不赢不动。</p></li>
+    <li><b class="t">每年只做一件事：核对费率。</b>
+      <p>基金公司降费是常态（沪深300 联接已从 1.0% 降到 0.2%）。每年查一次同标的有没有更便宜的，
+        转换成本通常一年内收回。<b>费率是这份方案里唯一 100% 确定能拿到的收益。</b></p></li>
+  </ol>
+</section>
+
+<section id="s8"><hr>
+  <div class="h-wrap"><span class="h-num">08</span><h2>相关性：这套组合真正的引擎</h2></div>
+  <p class="dek">月度收益相关系数，2013-09 至 2026-09（157 个月），全部基于可买到的基金真实复权净值。
+    金色越深＝越同涨同跌，蓝色＝反向。<b>找零和负数，比找高收益更重要。</b></p>
+  <div class="tw"><div id="heat" class="heat"></div></div>
+  <p class="prose" style="margin-top:18px">
+    A 股内部（红利／300／500）相关性高达 <span class="mono">0.71–0.81</span>——<b>同时买三只 A 股基金，几乎等于买一只</b>。
+    真正提供分散的是黄金（对 A 股 <span class="mono">0.00</span>、对美股 <span class="mono">−0.08</span>）
+    与美股（对 A 股 <span class="mono">0.23</span>）。这解释了为什么方案里 A 股只留 30%，却要配 13% 的黄金。
+    也解释了为什么债券必须用<em>纯利率债</em>——二级债基（含股票）对 A 股的相关性高达 <span class="mono">0.69</span>，
+    起不到缓冲作用。</p>
+</section>
+<section id="s9"><hr>
+  <div class="h-wrap"><span class="h-num">09</span><h2>局限，以及我在研究过程中修正的错误</h2></div>
+  <p class="dek">一份不列局限的回测报告不值得信。这里先列研究过程中被抓出来并已修正的三处问题，再列仍然存在的边界。</p>
+
+  <h3 style="margin-top:32px">已修正的三处</h3>
+  <div class="note warn" style="margin-top:14px">
+    <b>① IRR 函数少贴现了一期。</b>用已知答案的现金流校验时发现：终值被贴现 <span class="mono">n−1</span> 期而非 <span class="mono">n</span> 期，
+    导致所有收益率被系统性高估——5 年期 <span class="mono">+0.33pp</span>、10 年 <span class="mono">+0.15pp</span>、15 年 <span class="mono">+0.06pp</span>，
+    且<em>收益越高的组合被高估越多</em>，因此本方案与沪深300 的差距曾被夸大约 0.13pp。
+    修复后全部重跑，本文所有数字均为修复后结果（校验误差为 0）。<b>核心结论未变：各期限的亏损概率完全一致。</b></div>
+  <div class="note warn" style="margin-top:12px">
+    <b>② 三处"本方案"的权重口径不一致。</b>方案表是含黄金的 7 资产版，图表数据曾把黄金并入债券，
+    另一处表格又用了等比放大版。已统一为单一定义，长窗口无黄金时明确标注"剔除黄金后等比放大"。</div>
+  <div class="note warn" style="margin-top:12px">
+    <b>③ 剔除了一条坏数据。</b>中证 H20269「红利低波100全收益」相对其价格指数的隐含股息率高达
+    <span class="mono">6.06%</span>／年（正常红利指数约 3.9%），与同系列不自洽，判定为口径不匹配并剔除。
+    若误用该序列，会得出"红利低波年化 16.7%、超过纳斯达克"的错误结论。
+    本文采用的中证红利全收益（H00922）隐含股息 <span class="mono">3.93%</span>、沪深300 <span class="mono">2.02%</span>、
+    中证500 <span class="mono">1.15%</span>，均在合理区间。</div>
+
+  <h3 style="margin-top:36px">仍然存在的边界</h3>
+  <ul class="lim prose">
+    <li><b>黄金在组合里的贡献并不稳健，我仍然配了它。</b>三个窗口的对比是：2008 起 <span class="mono neg">−0.31pp</span>、
+      2011 起 <span class="mono">+0.17pp</span>、2013 起 <span class="mono">+0.50pp</span>——方向不定，统计上不显著。
+      我最初基于 2013 年起的窗口写下"黄金同时提升收益并降低浮亏"，那是<b>过度解读单一窗口</b>，已更正。
+      保留 13% 权重的理由不是收益，而是它与股票 0 相关、且对冲的是历史数据里没有的风险（货币、地缘、恶性通胀）。
+      如果你不认同为"没发生过的事"付保费，把它降到 7%（优化器给的数）也完全合理。</li>
+    <li><b>黄金数据始于 2008-01。</b>2005–2007 的人民币金价未能从公开源取得，故含黄金的主窗口为 18.7 年。
+      黄金代理用沪金主力连续（AU0），与华安黄金ETF联接的月度收益相关性 <span class="mono">0.987</span>、
+      年化差 <span class="mono">0.30pp</span>（即费率+跟踪误差），已在回测中扣除。</li>
+    <li><b>港股红利含两层不确定性。</b>其一，长历史指数（港股通 2014 年才开通）有回溯模拟成分，
+      天然对该策略有利；其二，我用的是"价格指数 + 4% 股息假设"而非真实全收益序列。
+      因此只给 10% 权重，且在实盘窗口用表现差得多的恒生指数（13 年年化仅 2.8%）做保守替代验证过——结论不变。</li>
+    <li><b>债券的历史回报确定不可持续。</b>10 年国债当前 <span class="mono">1.68%</span>，而回测窗口里政金债年化 3–5%。
+      未来债券部分的合理预期是 2% 左右。压力测试中"债券 −1.5%"一栏与第 6 节的估值模型都已按此处理。</li>
+    <li><b>滚动窗口的样本高度重叠。</b>104 个 10 年期起点里只包含约 2 个独立周期，
+      统计显著性远低于样本数暗示的水平。这是所有长期回测的通病，无法靠更多计算解决——
+      只能靠跨起点、跨市场、样本外、Bootstrap 多重验证来缓解，本文做了四种。</li>
+    <li><b>指数基金存在生存者偏差。</b>筛选基于当前存续的 4,462 只指数基金，
+      已清盘的产品不在样本内。对宽基指数基金而言这个偏差较小（清盘多为迷你行业基金），但不为零。</li>
+    <li><b>QDII 有额度风险。</b>标普500 与纳指100 基金可能因外汇额度用尽而暂停或限制申购。
+      遇到时：当月该部分资金转投黄金或债券，恢复后补回，不要因此中断整个计划。</li>
+    <li><b>未计入的成本：</b>基金转换费、赎回费（多数持有满 2 年为 0）、以及未来可能开征的税项。
+      申购费按第三方平台 1 折 0.12% 计，若你在银行渠道按原价 1.2% 申购，20 年会多付掉约 <span class="mono">1.1%</span> 的总收益。</li>
+    <li><b>这份研究不知道你的情况。</b>没有考虑你的负债、收入稳定性、已有资产、税务身份和风险承受力。
+      如果这笔钱 3 年内可能要用，这套方案不适合你——第 4 节的矩阵显示 3 年期最差仅 +1.03%，而 1 年期最差是 −17%。</li>
+  </ul>
+</section>
+
+<section id="s10"><hr>
+  <div class="h-wrap"><span class="h-num">10</span><h2>数据与方法</h2></div>
+  <div class="g2">
+    <div>
+      <h4>数据来源</h4>
+      <p style="font-size:13.5px;color:var(--ink-2);margin-top:9px">
+        <b>中证指数官网</b>：沪深300／中证500／中证1000／中证红利／上证50／中证全债的<em>全收益</em>指数，2004-12 起日频，
+        以及各指数的 PE 与股息率。<br><br>
+        <b>天天基金</b>：27,790 只基金名录、4,462 只指数基金、每只基金的完整历史复权净值、
+        费率明细（管理费／托管费／销售服务费／申购费）与规模。<br><br>
+        <b>新浪财经</b>：标普500 与纳斯达克综合指数（2004-01 起）、沪金主力连续 AU0（2008-01 起）。<br><br>
+        <b>中国银行</b>：美元兑人民币中间价（1994 起），用于把美股折算为人民币计价。<br><br>
+        <b>乐咕乐股</b>：各指数 PE-TTM 历史分位、A 股股息率、总市值／GDP、国债收益率曲线。</p>
+    </div>
+    <div>
+      <h4>关键口径</h4>
+      <p style="font-size:13.5px;color:var(--ink-2);margin-top:9px">
+        · A 股指数一律用<b>全收益</b>口径（含分红再投资）。用价格指数会低估 A 股 <span class="mono">1.15–3.93</span> 个百分点／年。<br><br>
+        · 美股按「价格指数 ＋ 历史平均股息（标普 1.9%、纳指 0.9%）× 汇率」折算为人民币，
+        因此<b>已包含汇率影响</b>——这是人民币投资者的真实体验。<br><br>
+        · 指数回测<b>扣减</b>模拟基金年费（A股 0.20%、QDII 0.65%、黄金 0.30%、债券 0.30%）与 0.12% 申购费；
+        用真实基金净值时不再重复扣费。<br><br>
+        · 收益率一律为 <b>IRR（内部收益率）</b>，按每笔现金流的实际时点加权，
+        而非「总收益 ÷ 总投入」——后者会系统性高估定投收益。<br><br>
+        · 再平衡默认为「现金流再平衡」：用新增资金补低配，不卖出。</p>
+    </div>
+  </div>
+  <div class="note"><b>可复现性。</b>全部数据由公开接口抓取，抓取脚本、回测引擎、优化器与自检测试
+    保存在项目的 <span class="mono">src/</span> 目录，原始数据在 <span class="mono">data/</span>。
+    引擎附带 8 项自检（IRR 精度、费率方向、窗口切片、再平衡有效性、数据连续性等），
+    其中 IRR 用已知答案的等额与不等额现金流校验，误差为 <span class="mono">0</span>。</div>
+</section>
+
+<footer>
+  <p><b>这份报告是历史数据的分析，不是对未来的承诺，也不构成投资建议。</b>
+    任何组合的实际结果都取决于你何时开始、能否坚持，以及未来 20 年真实发生了什么——
+    而后者是这份研究、以及任何一份研究，都无法知道的。第 6 节给出的 5.5%–7% 是基于当前估值的合理预期，
+    它可能仍然过于乐观。请根据你自己的情况判断，必要时咨询有资质的投资顾问。</p>
+  <p style="margin-top:16px" class="mono">
+    主窗口 2008-01 → 2026-09（225 个月）· 长窗口 2005-01 → 2026-09（261 个月）· 实盘窗口 2013-09 → 2026-09（157 个月）<br>
+    数据截至 2026-09-04 · 7 类资产 · 4 个起点窗口 · 4,000 条 Bootstrap 路径 · 6,000 条蒙特卡洛路径</p>
+</footer>
+</main>
+</div>
+<div class="tip" id="tip"></div>
+<script>
+const D = {"dca":{"d":["2008-03","2008-04","2008-05","2008-06","2008-07","2008-08","2008-09","2008-10","2008-11","2008-12","2009-01","2009-02","2009-03","2009-04","2009-05","2009-06","2009-07","2009-08","2009-09","2009-10","2009-11","2009-12","2010-01","2010-02","2010-03","2010-04","2010-05","2010-06","2010-07","2010-08","2010-09","2010-10","2010-11","2010-12","2011-01","2011-02","2011-03","2011-04","2011-05","2011-06","2011-07","2011-08","2011-09","2011-10","2011-11","2011-12","2012-01","2012-02","2012-03","2012-04","2012-05","2012-06","2012-07","2012-08","2012-09","2012-10","2012-11","2012-12","2013-01","2013-02","2013-03","2013-04","2013-05","2013-06","2013-07","2013-08","2013-09","2013-10","2013-11","2013-12","2014-01","2014-02","2014-03","2014-04","2014-05","2014-06","2014-07","2014-08","2014-09","2014-10","2014-11","2014-12","2015-01","2015-02","2015-03","2015-04","2015-05","2015-06","2015-07","2015-08","2015-09","2015-10","2015-11","2015-12","2016-01","2016-02","2016-03","2016-04","2016-05","2016-06","2016-07","2016-08","2016-09","2016-10","2016-11","2016-12","2017-01","2017-02","2017-03","2017-04","2017-05","2017-06","2017-07","2017-08","2017-09","2017-10","2017-11","2017-12","2018-01","2018-02","2018-03","2018-04","2018-05","2018-06","2018-07","2018-08","2018-09","2018-10","2018-11","2018-12","2019-01","2019-02","2019-03","2019-04","2019-05","2019-06","2019-07","2019-08","2019-09","2019-10","2019-11","2019-12","2020-01","2020-02","2020-03","2020-04","2020-05","2020-06","2020-07","2020-08","2020-09","2020-10","2020-11","2020-12","2021-01","2021-02","2021-03","2021-04","2021-05","2021-06","2021-07","2021-08","2021-09","2021-10","2021-11","2021-12","2022-01","2022-02","2022-03","2022-04","2022-05","2022-06","2022-07","2022-08","2022-09","2022-10","2022-11","2022-12","2023-01","2023-02","2023-03","2023-04","2023-05","2023-06","2023-07","2023-08","2023-09","2023-10","2023-11","2023-12","2024-01","2024-02","2024-03","2024-04","2024-05","2024-06","2024-07","2024-08","2024-09","2024-10","2024-11","2024-12","2025-01","2025-02","2025-03","2025-04","2025-05","2025-06","2025-07","2025-08","2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08","2026-09"],"cost":[1000,2000,3000,4000,5000,6000,7000,8000,9000,10000,11000,12000,13000,14000,15000,16000,17000,18000,19000,20000,21000,22000,23000,24000,25000,26000,27000,28000,29000,30000,31000,32000,33000,34000,35000,36000,37000,38000,39000,40000,41000,42000,43000,44000,45000,46000,47000,48000,49000,50000,51000,52000,53000,54000,55000,56000,57000,58000,59000,60000,61000,62000,63000,64000,65000,66000,67000,68000,69000,70000,71000,72000,73000,74000,75000,76000,77000,78000,79000,80000,81000,82000,83000,84000,85000,86000,87000,88000,89000,90000,91000,92000,93000,94000,95000,96000,97000,98000,99000,100000,101000,102000,103000,104000,105000,106000,107000,108000,109000,110000,111000,112000,113000,114000,115000,116000,117000,118000,119000,120000,121000,122000,123000,124000,125000,126000,127000,128000,129000,130000,131000,132000,133000,134000,135000,136000,137000,138000,139000,140000,141000,142000,143000,144000,145000,146000,147000,148000,149000,150000,151000,152000,153000,154000,155000,156000,157000,158000,159000,160000,161000,162000,163000,164000,165000,166000,167000,168000,169000,170000,171000,172000,173000,174000,175000,176000,177000,178000,179000,180000,181000,182000,183000,184000,185000,186000,187000,188000,189000,190000,191000,192000,193000,194000,195000,196000,197000,198000,199000,200000,201000,202000,203000,204000,205000,206000,207000,208000,209000,210000,211000,212000,213000,214000,215000,216000,217000,218000,219000,220000,221000,222000,223000],"port":[905,1938,2895,3424,4439,4964,5772,5584,6805,7884,9120,10200,12353,14030,15686,17303,20399,19799,21468,23452,26506,27859,27520,29355,31133,31718,31003,30288,33338,34671,37022,40533,40771,42839,43083,45999,46973,48351,47936,48886,49764,49617,47052,50584,50553,49149,52685,56241,55899,58069,57913,58249,58341,59296,61927,61549,61091,66354,70375,71361,71476,71360,74914,69508,72935,75805,78873,79902,82173,82207,82551,86522,86602,87322,89147,92395,96484,99517,102755,105148,110495,116607,119017,123981,133387,144325,154281,150179,141956,135958,132231,144569,148310,152689,137895,139274,149866,150131,152874,156934,163668,167288,168040,170049,175745,174166,176889,183609,185988,187387,188546,192762,196624,198107,201529,205581,206190,207882,214333,209278,206793,206196,213048,209983,216040,214205,217708,207558,211649,205734,214078,228221,237804,240948,234634,244074,246550,249350,250796,253493,256425,268381,268119,264536,250894,268579,275369,284902,307282,316491,303779,301216,316719,320187,315702,322742,328884,338921,347478,351787,351746,370854,360637,363268,368835,379743,363246,367529,372036,355364,361548,358658,369587,368834,355599,360129,383446,367187,382893,388877,396511,403816,407581,419411,431917,424555,419543,414454,427492,434767,434821,459324,469403,471701,486786,486664,484553,482433,520379,517109,531078,535185,539364,538765,537010,540134,557752,573387,587083,601332,619608,637542,636582,640726,673763,675085,642626,678210,680467,651421,663812,686472,686036],"hs300":[810,1889,2638,2824,3849,4134,4816,4311,5842,6794,8714,10226,13149,14799,16646,20342,25207,19863,22159,25278,28125,29650,27459,29142,30725,29099,27269,26194,30551,31928,33313,39501,37581,38467,38806,41909,42691,43278,41670,43615,43649,42775,39699,42488,40679,38767,41768,45708,43525,47640,48881,47105,45782,44284,47140,47331,45856,55240,59883,60565,57453,57337,62268,53988,55272,59442,62980,63034,65782,63787,61229,61557,61614,63008,64116,65960,73597,74291,78941,81799,92710,117884,115548,121226,138569,163741,168149,156880,135673,120599,115734,128804,130972,138057,109781,108210,122118,120828,122556,123723,127969,134193,132253,136633,145940,137454,141687,145393,146543,146850,150459,159904,165374,170461,172230,180900,181842,183941,196183,185517,180687,175079,178620,167029,169711,162186,168428,155400,157324,150227,160794,185451,196743,199906,187039,199397,202496,202053,203989,208869,206714,222234,218145,215613,202617,216139,215212,234503,267408,275742,263711,270954,287406,302978,312131,312189,296220,301888,315483,311760,289843,291178,295878,299649,295926,303534,281267,283325,262000,250292,256465,284270,267132,262837,246200,228080,251553,254114,273884,269120,268852,268483,254463,260850,275823,260100,255933,248932,244609,241246,226971,249253,251741,257779,257556,251999,254480,247121,300456,292319,295470,298154,290786,297315,298062,290458,297286,308120,322275,357220,370109,371748,363821,373765,381338,382911,362609,393180,401752,412024,382334,387132,381657],"irr":0.1098,"irr_hs":0.0547},"roll":{"5y":{"d":["2008-02","2008-03","2008-04","2008-05","2008-06","2008-07","2008-08","2008-09","2008-10","2008-11","2008-12","2009-01","2009-02","2009-03","2009-04","2009-05","2009-06","2009-07","2009-08","2009-09","2009-10","2009-11","2009-12","2010-01","2010-02","2010-03","2010-04","2010-05","2010-06","2010-07","2010-08","2010-09","2010-10","2010-11","2010-12","2011-01","2011-02","2011-03","2011-04","2011-05","2011-06","2011-07","2011-08","2011-09","2011-10","2011-11","2011-12","2012-01","2012-02","2012-03","2012-04","2012-05","2012-06","2012-07","2012-08","2012-09","2012-10","2012-11","2012-12","2013-01","2013-02","2013-03","2013-04","2013-05","2013-06","2013-07","2013-08","2013-09","2013-10","2013-11","2013-12","2014-01","2014-02","2014-03","2014-04","2014-05","2014-06","2014-07","2014-08","2014-09","2014-10","2014-11","2014-12","2015-01","2015-02","2015-03","2015-04","2015-05","2015-06","2015-07","2015-08","2015-09","2015-10","2015-11","2015-12","2016-01","2016-02","2016-03","2016-04","2016-05","2016-06","2016-07","2016-08","2016-09","2016-10","2016-11","2016-12","2017-01","2017-02","2017-03","2017-04","2017-05","2017-06","2017-07","2017-08","2017-09","2017-10","2017-11","2017-12","2018-01","2018-02","2018-03","2018-04","2018-05","2018-06","2018-07","2018-08","2018-09","2018-10","2018-11","2018-12","2019-01","2019-02","2019-03","2019-04","2019-05","2019-06","2019-07","2019-08","2019-09","2019-10","2019-11","2019-12","2020-01","2020-02","2020-03","2020-04","2020-05","2020-06","2020-07","2020-08","2020-09","2020-10","2020-11","2020-12","2021-01","2021-02","2021-03","2021-04","2021-05","2021-06","2021-07","2021-08","2021-09"],"p":[0.0687,0.0634,0.0564,0.0696,0.0336,0.0456,0.054,0.0622,0.0595,0.0611,0.0519,0.0444,0.0542,0.0457,0.0412,0.042,0.0492,0.0598,0.0662,0.0725,0.0755,0.0894,0.1056,0.1085,0.1192,0.1432,0.1697,0.1913,0.1739,0.1443,0.1208,0.1038,0.1343,0.1395,0.146,0.0997,0.0986,0.1234,0.1192,0.1217,0.1272,0.1391,0.1427,0.139,0.1378,0.1455,0.1359,0.1359,0.1451,0.1447,0.1418,0.1386,0.1416,0.1436,0.1403,0.1409,0.1428,0.1376,0.1342,0.1404,0.1249,0.1143,0.1073,0.1145,0.1028,0.1077,0.0979,0.0982,0.0732,0.0752,0.0582,0.0683,0.0879,0.0985,0.0976,0.0807,0.0904,0.0884,0.0871,0.0837,0.0825,0.0817,0.0948,0.0895,0.0794,0.0538,0.0772,0.0838,0.0943,0.1213,0.1289,0.1076,0.0993,0.1153,0.1154,0.1056,0.1095,0.112,0.1195,0.1248,0.125,0.1202,0.1372,0.1214,0.1199,0.1217,0.1292,0.1068,0.1073,0.1081,0.0857,0.0888,0.0817,0.09,0.0855,0.0672,0.0688,0.0905,0.0695,0.0828,0.0856,0.0896,0.093,0.0926,0.1001,0.1077,0.0966,0.0876,0.0786,0.0865,0.0888,0.0839,0.1012,0.1056,0.1033,0.1119,0.1072,0.1012,0.0952,0.1215,0.1145,0.1208,0.1194,0.1183,0.1135,0.1078,0.1051,0.1136,0.1203,0.1254,0.1313,0.1396,0.1469,0.1418,0.1403,0.1565,0.1528,0.1284,0.1462,0.1434,0.1218,0.1258,0.1355,0.1317],"h":[0.0037,-0.0209,-0.0263,0.0017,-0.0589,-0.0556,-0.033,-0.0171,-0.024,-0.0171,-0.038,-0.0627,-0.0681,-0.0747,-0.0716,-0.07,-0.0638,-0.0248,-0.0243,-0.005,0.0048,0.0506,0.1435,0.1316,0.1467,0.1971,0.262,0.2681,0.2334,0.1675,0.1148,0.0936,0.1322,0.1351,0.1522,0.0558,0.0462,0.0909,0.0829,0.0848,0.0845,0.0941,0.109,0.0987,0.1067,0.1285,0.0989,0.1052,0.1101,0.1082,0.1035,0.1082,0.1277,0.1357,0.1418,0.1392,0.1528,0.1481,0.1456,0.166,0.1378,0.1218,0.1032,0.1054,0.0731,0.0729,0.0483,0.0574,0.0198,0.0193,-0.0041,0.0172,0.0675,0.0841,0.0831,0.0492,0.0675,0.0663,0.0591,0.0564,0.0598,0.0498,0.0738,0.0631,0.055,0.0273,0.051,0.048,0.0811,0.1321,0.1413,0.119,0.1255,0.1456,0.1632,0.1715,0.1658,0.1385,0.1413,0.154,0.144,0.1094,0.1065,0.1086,0.109,0.0995,0.1058,0.0707,0.0695,0.0344,0.0128,0.0191,0.0565,0.0285,0.0192,-0.0091,-0.0412,-0.0043,-0.0022,0.0254,0.0166,0.014,0.0111,-0.0126,-0.0051,0.014,-0.0122,-0.0217,-0.0353,-0.0455,-0.0541,-0.0813,-0.0474,-0.0455,-0.0379,-0.0399,-0.0505,-0.0482,-0.0612,0.0141,0.0009,0.003,0.0044,-0.0072,-0.0003,-0.0013,-0.0139,-0.0066,0.0054,0.0215,0.0613,0.0741,0.0741,0.0638,0.0734,0.0803,0.081,0.0583,0.0896,0.0969,0.1059,0.0746,0.0782,0.071]},"10y":{"d":["2008-02","2008-03","2008-04","2008-05","2008-06","2008-07","2008-08","2008-09","2008-10","2008-11","2008-12","2009-01","2009-02","2009-03","2009-04","2009-05","2009-06","2009-07","2009-08","2009-09","2009-10","2009-11","2009-12","2010-01","2010-02","2010-03","2010-04","2010-05","2010-06","2010-07","2010-08","2010-09","2010-10","2010-11","2010-12","2011-01","2011-02","2011-03","2011-04","2011-05","2011-06","2011-07","2011-08","2011-09","2011-10","2011-11","2011-12","2012-01","2012-02","2012-03","2012-04","2012-05","2012-06","2012-07","2012-08","2012-09","2012-10","2012-11","2012-12","2013-01","2013-02","2013-03","2013-04","2013-05","2013-06","2013-07","2013-08","2013-09","2013-10","2013-11","2013-12","2014-01","2014-02","2014-03","2014-04","2014-05","2014-06","2014-07","2014-08","2014-09","2014-10","2014-11","2014-12","2015-01","2015-02","2015-03","2015-04","2015-05","2015-06","2015-07","2015-08","2015-09","2015-10","2015-11","2015-12","2016-01","2016-02","2016-03","2016-04","2016-05","2016-06","2016-07","2016-08","2016-09"],"p":[0.1072,0.1032,0.1008,0.1051,0.1005,0.1038,0.1,0.1007,0.0893,0.09,0.0817,0.0863,0.0956,0.1006,0.1005,0.093,0.0981,0.0977,0.0979,0.0967,0.0966,0.0967,0.1034,0.1014,0.0969,0.0849,0.096,0.0988,0.1032,0.1152,0.1187,0.109,0.1054,0.1131,0.1132,0.1088,0.111,0.1128,0.1166,0.1195,0.12,0.118,0.1261,0.1188,0.1181,0.1189,0.1222,0.1116,0.1117,0.112,0.1012,0.1025,0.0988,0.1023,0.0997,0.0906,0.0908,0.1004,0.0899,0.0957,0.0965,0.0981,0.0994,0.099,0.1022,0.1054,0.0998,0.0953,0.0907,0.0944,0.0954,0.0931,0.1012,0.103,0.1016,0.1053,0.1029,0.0998,0.0967,0.1088,0.1055,0.1084,0.1078,0.1073,0.1051,0.1026,0.102,0.1064,0.1102,0.113,0.1158,0.1196,0.1229,0.1208,0.1203,0.128,0.1263,0.115,0.1232,0.1219,0.1118,0.1135,0.118,0.1161],"h":[0.0844,0.0783,0.0711,0.0737,0.0595,0.0609,0.0505,0.0558,0.0381,0.0376,0.026,0.0366,0.0617,0.0708,0.072,0.0575,0.068,0.0696,0.0679,0.0681,0.0711,0.0678,0.0803,0.0756,0.0719,0.0587,0.0697,0.0674,0.0822,0.1052,0.1094,0.0994,0.103,0.1128,0.1213,0.1254,0.1239,0.1126,0.1148,0.1216,0.1179,0.1026,0.102,0.1034,0.1039,0.0998,0.1027,0.0863,0.0857,0.069,0.0583,0.0612,0.0791,0.0652,0.0601,0.0453,0.0284,0.0453,0.045,0.0575,0.0524,0.0504,0.0482,0.0359,0.0389,0.0475,0.0338,0.0286,0.0212,0.0158,0.0111,-0.003,0.0134,0.013,0.0154,0.0129,0.0062,0.0059,-0.002,0.0344,0.0271,0.0272,0.0274,0.0213,0.0244,0.0238,0.0178,0.0218,0.0281,0.0361,0.055,0.0605,0.0599,0.0545,0.0585,0.0612,0.0604,0.0482,0.0623,0.0649,0.0682,0.0523,0.0533,0.0492]},"15y":{"d":["2008-02","2008-03","2008-04","2008-05","2008-06","2008-07","2008-08","2008-09","2008-10","2008-11","2008-12","2009-01","2009-02","2009-03","2009-04","2009-05","2009-06","2009-07","2009-08","2009-09","2009-10","2009-11","2009-12","2010-01","2010-02","2010-03","2010-04","2010-05","2010-06","2010-07","2010-08","2010-09","2010-10","2010-11","2010-12","2011-01","2011-02","2011-03","2011-04","2011-05","2011-06","2011-07","2011-08","2011-09"],"p":[0.0962,0.0976,0.0988,0.099,0.1014,0.1038,0.1007,0.098,0.0953,0.0975,0.098,0.0965,0.1015,0.1026,0.1019,0.1043,0.103,0.1013,0.0997,0.1075,0.1056,0.1077,0.1076,0.1075,0.1063,0.1049,0.1046,0.1073,0.1095,0.1111,0.1128,0.1152,0.1175,0.1163,0.1161,0.1209,0.1201,0.1134,0.1187,0.1181,0.1119,0.1131,0.116,0.1149],"h":[0.0515,0.0509,0.0501,0.0428,0.0452,0.0513,0.0431,0.0401,0.0355,0.0318,0.0287,0.0195,0.0303,0.0304,0.0325,0.0314,0.0278,0.0283,0.0239,0.0478,0.0436,0.0442,0.0447,0.0409,0.0429,0.0425,0.0386,0.0407,0.0444,0.0491,0.061,0.0645,0.0643,0.061,0.0635,0.0652,0.065,0.0576,0.0668,0.0687,0.071,0.0611,0.0618,0.0593]}},"stat":{"5y":{"port":{"n":164.0,"med":0.1073,"p10":0.0626,"p90":0.1424,"mn":0.0336,"loss":0.0,"dd":-0.0465},"hs":{"n":164.0,"med":0.0622,"p10":-0.0408,"p90":0.1438,"mn":-0.0813,"loss":0.2622,"dd":-0.1809}},"10y":{"port":{"n":104.0,"med":0.1031,"p10":0.0935,"p90":0.1195,"mn":0.0817,"loss":0.0,"dd":-0.0554},"hs":{"n":104.0,"med":0.0597,"p10":0.0189,"p90":0.1038,"mn":-0.003,"loss":0.0192,"dd":-0.1628}},"15y":{"port":{"n":44.0,"med":0.106,"p10":0.0977,"p90":0.1171,"mn":0.0953,"loss":0.0,"dd":-0.0865},"hs":{"n":44.0,"med":0.0445,"p10":0.0292,"p90":0.0648,"mn":0.0195,"loss":0.0,"dd":-0.2092}}},"windows":[{"start":"2005-01","span":"21.7年","gold":false,"5y":{"pm":0.1047,"pn":0.0048,"pl":0.0,"hm":0.0587,"hn":-0.0955,"hl":0.295},"10y":{"pm":0.1089,"pn":0.0896,"pl":0.0,"hm":0.0602,"hn":-0.003,"hl":0.0143}},{"start":"2008-01","span":"18.7年","gold":true,"5y":{"pm":0.1073,"pn":0.0336,"pl":0.0,"hm":0.0622,"hn":-0.0813,"hl":0.2622},"10y":{"pm":0.1031,"pn":0.0817,"pl":0.0,"hm":0.0597,"hn":-0.003,"hl":0.0192}},{"start":"2011-01","span":"15.7年","gold":true,"5y":{"pm":0.1107,"pn":0.0538,"pl":0.0,"hm":0.0685,"hn":-0.0813,"hl":0.1953},"10y":{"pm":0.1068,"pn":0.0899,"pl":0.0,"hm":0.0498,"hn":-0.003,"hl":0.0294}},{"start":"2013-09","span":"13.1年","gold":true,"5y":{"pm":0.1053,"pn":0.0538,"pl":0.0,"hm":0.0504,"hn":-0.0813,"hl":0.2604},"10y":{"pm":0.1081,"pn":0.0907,"pl":0.0,"hm":0.0273,"hn":-0.003,"hl":0.0556}}],"startdep":{"starts":["2005-01","2008-01","2011-01","2015-06"],"rows":[{"name":"A股红利","v":[0.1247,0.0491,0.0831,0.0537]},{"name":"A股中证500","v":[0.1141,0.038,0.0452,-0.0003]},{"name":"A股沪深300","v":[0.095,0.0197,0.0484,0.0247]},{"name":"港股红利","v":[0.1389,0.0642,0.0738,0.0324]},{"name":"美股标普500","v":[0.1012,0.1143,0.1448,0.1568]},{"name":"美股纳指100","v":[0.1249,0.1444,0.1697,0.1816]},{"name":"黄金","v":[0.0827,0.0827,0.0802,0.1326]},{"name":"债券","v":[0.046,0.0474,0.0463,0.0448]}]},"corr":{"labels":["A股红利","A股沪深300","A股中证500","港股恒生","美股标普500","美股纳指100","黄金","债券"],"m":[[1.0,0.81,0.71,0.52,0.22,0.21,-0.05,0.67],[0.81,1.0,0.81,0.56,0.23,0.26,-0.0,0.69],[0.71,0.81,1.0,0.41,0.27,0.33,0.03,0.55],[0.52,0.56,0.41,1.0,0.27,0.25,0.11,0.38],[0.22,0.23,0.27,0.27,1.0,0.9,-0.08,0.23],[0.21,0.26,0.33,0.25,0.9,1.0,-0.08,0.22],[-0.05,-0.0,0.03,0.11,-0.08,-0.08,1.0,0.06],[0.67,0.69,0.55,0.38,0.23,0.22,0.06,1.0]]},"sens":{"starts":["2005起","2008起","2011起","2013起"],"rows":[{"name":"A股红利","v":[0.0986,0.0955,0.0941,0.0843],"kind":"asset","lo":0.0843,"hi":0.0986,"rng":0.0143},{"name":"中证500","v":[0.0581,0.0354,0.0396,0.0117],"kind":"asset","lo":0.0117,"hi":0.0581,"rng":0.0464},{"name":"沪深300","v":[0.0602,0.0597,0.0498,0.0273],"kind":"asset","lo":0.0273,"hi":0.0602,"rng":0.0329},{"name":"港股红利","v":[0.0962,0.0824,0.0678,0.052],"kind":"asset","lo":0.052,"hi":0.0962,"rng":0.0442},{"name":"标普500","v":[0.1326,0.1378,0.1477,0.1535],"kind":"asset","lo":0.1326,"hi":0.1535,"rng":0.0209},{"name":"纳指100","v":[0.1593,0.1693,0.1719,0.1739],"kind":"asset","lo":0.1593,"hi":0.1739,"rng":0.0146},{"name":"黄金","v":[0.0598,0.0598,0.0826,0.1471],"kind":"asset","lo":0.0598,"hi":0.1471,"rng":0.0873},{"name":"债券","v":[0.0429,0.0428,0.0429,0.0442],"kind":"asset","lo":0.0428,"hi":0.0442,"rng":0.0014},{"name":"★本方案","v":[0.1089,0.1031,0.1068,0.1081],"kind":"port","lo":0.1031,"hi":0.1089,"rng":0.0058}]},"matrix":{"years":[2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022],"hor":[1,2,3,5,7,10,15],"port":[[null,null,null,null,null,null,null],[0.5557,0.2117,0.0218,0.0519,0.127,0.0817,0.098],[0.1694,-0.0587,0.0208,0.1056,0.1129,0.1034,0.1076],[-0.1704,0.0137,0.0344,0.146,0.1214,0.1132,0.1161],[0.0662,0.055,0.1618,0.1359,0.0798,0.1222,null],[0.0457,0.2088,0.1976,0.1342,0.1109,0.0899,null],[0.3355,0.2203,0.1384,0.0582,0.1159,0.0954,null],[0.1309,0.0939,0.1059,0.0948,0.1181,0.1078,null],[0.1296,0.1174,0.0103,0.1154,0.0756,0.1203,null],[0.0964,-0.0352,0.1004,0.1292,0.0894,null,null],[-0.102,0.1263,0.1403,0.0695,0.1162,null,null],[0.1865,0.1666,0.1562,0.0888,0.1318,null,null],[0.1919,0.1601,0.0375,0.1194,null,null,null],[0.1545,-0.0016,0.0725,0.1403,null,null,null],[-0.029,0.0869,0.1449,null,null,null,null]],"hs":[[null,null,null,null,null,null,null],[0.7001,0.1015,-0.1196,-0.038,0.106,0.026,0.0287],[0.0469,-0.2105,-0.046,0.1435,0.0668,0.0803,0.0447],[-0.3452,-0.0285,-0.0442,0.1522,0.1172,0.1213,0.0635],[0.1187,-0.014,0.3014,0.0989,0.0289,0.1027,null],[-0.0613,0.4687,0.2423,0.1456,0.0978,0.045,null],[1.1606,0.2994,0.0913,-0.0041,0.1421,0.0111,null],[-0.0127,-0.0312,0.1073,0.0738,0.0915,0.0274,null],[0.0673,0.1897,-0.0734,0.1632,0.0201,0.0585,null],[0.2366,-0.1509,0.0992,0.1058,-0.0215,null,null],[-0.2851,0.137,0.233,-0.0022,0.0197,null,null],[0.246,0.3192,0.1192,-0.0541,0.0614,null,null],[0.4705,0.0837,-0.0713,0.0044,null,null,null],[-0.0311,-0.1342,-0.1228,0.0734,null,null,null],[-0.1077,-0.1207,0.0407,null,null,null,null]]},"mc":{"base":{"med":0.0873,"p5":0.0318,"p25":0.0647,"p75":0.1103,"p95":0.1441,"loss":0.0047,"hist":[0,0,0,2,1,3,7,15,29,31,67,114,142,215,272,341,444,496,514,510,487,498,447,361,298,209,170,133,89,56,26,11,6,3,1,1,0,1,0,0],"edges":[-0.06,-0.0525,-0.045,-0.0375,-0.03,-0.0225,-0.015,-0.0075,0.0,0.0075,0.015,0.0225,0.03,0.0375,0.045,0.0525,0.06,0.0675,0.075,0.0825,0.09,0.0975,0.105,0.1125,0.12,0.1275,0.135,0.1425,0.15,0.1575,0.165,0.1725,0.18,0.1875,0.195,0.2025,0.21,0.2175,0.225,0.2325,0.24]},"f80":{"med":0.069,"p5":0.0137,"p25":0.0466,"p75":0.0922,"p95":0.124,"loss":0.021,"hist":[1,0,6,6,15,17,17,64,84,122,173,224,300,395,445,480,545,511,487,465,439,337,273,211,130,90,64,43,28,10,10,4,2,2,0,0,0,0,0,0],"edges":[-0.06,-0.0525,-0.045,-0.0375,-0.03,-0.0225,-0.015,-0.0075,0.0,0.0075,0.015,0.0225,0.03,0.0375,0.045,0.0525,0.06,0.0675,0.075,0.0825,0.09,0.0975,0.105,0.1125,0.12,0.1275,0.135,0.1425,0.15,0.1575,0.165,0.1725,0.18,0.1875,0.195,0.2025,0.21,0.2175,0.225,0.2325,0.24]},"f60":{"med":0.0515,"p5":-0.0045,"p25":0.0294,"p75":0.074,"p95":0.108,"loss":0.066,"hist":[4,12,12,25,31,64,92,150,174,265,311,385,472,507,563,504,528,458,378,309,217,168,130,104,50,43,20,11,4,1,2,0,0,0,0,0,0,0,0,0],"edges":[-0.06,-0.0525,-0.045,-0.0375,-0.03,-0.0225,-0.015,-0.0075,0.0,0.0075,0.015,0.0225,0.03,0.0375,0.045,0.0525,0.06,0.0675,0.075,0.0825,0.09,0.0975,0.105,0.1125,0.12,0.1275,0.135,0.1425,0.15,0.1575,0.165,0.1725,0.18,0.1875,0.195,0.2025,0.21,0.2175,0.225,0.2325,0.24]},"hs":{"med":0.0233,"p5":-0.087,"p95":0.13,"loss":0.3633,"hist":[77,123,107,123,133,151,150,165,177,178,175,177,166,193,199,143,155,146,132,119,106,91,77,45,48,45,38,26,25,18,17,12,11,5,8,5,5,2,1,0],"edges":[-0.06,-0.0525,-0.045,-0.0375,-0.03,-0.0225,-0.015,-0.0075,0.0,0.0075,0.015,0.0225,0.03,0.0375,0.045,0.0525,0.06,0.0675,0.075,0.0825,0.09,0.0975,0.105,0.1125,0.12,0.1275,0.135,0.1425,0.15,0.1575,0.165,0.1725,0.18,0.1875,0.195,0.2025,0.21,0.2175,0.225,0.2325,0.24]}},"pert":{"3":{"med_lo":0.0978,"med_hi":0.1079,"med_mean":0.103,"min_mean":0.0815,"all_pos":true},"5":{"med_lo":0.0959,"med_hi":0.1103,"med_mean":0.1033,"min_mean":0.0817,"all_pos":true},"8":{"med_lo":0.0906,"med_hi":0.1196,"med_mean":0.103,"min_mean":0.0813,"all_pos":true}},"base":{"med":0.1031,"min":0.0817},"boot":{"port":{"med":0.1044,"p5":0.0266,"p95":0.1785,"loss":0.0192,"hist":[1,1,1,0,1,7,17,13,22,26,49,64,86,145,165,227,296,352,363,398,406,330,298,195,173,117,90,50,48,25,16,7,7,1,0,2],"edges":[-0.1,-0.0894,-0.0789,-0.0683,-0.0578,-0.0472,-0.0367,-0.0261,-0.0156,-0.005,0.0056,0.0161,0.0267,0.0372,0.0478,0.0583,0.0689,0.0794,0.09,0.1006,0.1111,0.1217,0.1322,0.1428,0.1533,0.1639,0.1744,0.185,0.1956,0.2061,0.2167,0.2272,0.2378,0.2483,0.2589,0.2694,0.28]},"hs":{"med":0.0517,"p5":-0.0879,"p95":0.204,"loss":0.2735,"hist":[51,48,75,61,123,104,118,150,155,150,164,193,200,195,177,218,203,171,170,142,131,123,117,95,81,79,73,51,53,40,22,31,16,12,14,12],"edges":[-0.1,-0.0894,-0.0789,-0.0683,-0.0578,-0.0472,-0.0367,-0.0261,-0.0156,-0.005,0.0056,0.0161,0.0267,0.0372,0.0478,0.0583,0.0689,0.0794,0.09,0.1006,0.1111,0.1217,0.1322,0.1428,0.1533,0.1639,0.1744,0.185,0.1956,0.2061,0.2167,0.2272,0.2378,0.2483,0.2589,0.2694,0.28]},"eq":{"med":0.1036,"p5":0.0298,"p95":0.185,"loss":0.0173,"hist":[1,2,0,3,2,9,3,15,25,31,34,53,104,131,188,277,298,370,366,341,360,336,256,211,163,129,91,69,46,31,22,11,9,2,5,2],"edges":[-0.1,-0.0894,-0.0789,-0.0683,-0.0578,-0.0472,-0.0367,-0.0261,-0.0156,-0.005,0.0056,0.0161,0.0267,0.0372,0.0478,0.0583,0.0689,0.0794,0.09,0.1006,0.1111,0.1217,0.1322,0.1428,0.1533,0.1639,0.1744,0.185,0.1956,0.2061,0.2167,0.2272,0.2378,0.2483,0.2589,0.2694,0.28]}},"wf":[{"tr":"2008-2015","te":"2016-2026","opt":0.1147,"pln":0.1153,"eq":0.1116,"hs":0.0506},{"tr":"2008-2017","te":"2018-2026","opt":0.1153,"pln":0.1205,"eq":0.1181,"hs":0.0499},{"tr":"2005-2014","te":"2015-2026","opt":0.1103,"pln":0.1129,"eq":0.1086,"hs":0.0483},{"tr":"2005-2016","te":"2017-2026","opt":0.1159,"pln":0.117,"eq":0.1139,"hs":0.0489}],"val":{"中证红利":{"code":"000922","pe":11.08,"dy":4.12,"date":"2026-09-04"},"沪深300":{"code":"000300","pe":17.07,"dy":2.3,"date":"2026-09-04"},"中证500":{"code":"000905","pe":31.22,"dy":1.22,"date":"2026-09-04"},"中证1000":{"code":"000852","pe":34.65,"dy":0.99,"date":"2026-09-04"},"上证红利":{"code":"000015","pe":10.98,"dy":3.94,"date":"2026-09-04"},"红利低波100":{"code":"930740","pe":9.05,"dy":4.59,"date":"2026-09-04"},"上证50":{"code":"000016","pe":14.32,"dy":2.75,"date":"2026-09-04"},"恒生港股通高股息":{"code":"930838","pe":19.34,"dy":3.38,"date":"2026-09-04"},"forward":{"raw":5.46,"net":5.12,"assum":[{"name":"A股红利","w":0.24,"dy":4.43,"g":2.5,"v":0.0},{"name":"A股中证500","w":0.06,"dy":1.2,"g":5.0,"v":-0.5},{"name":"港股红利","w":0.1,"dy":6.8,"g":1.5,"v":0.5},{"name":"美股标普500","w":0.18,"dy":1.2,"g":5.5,"v":-1.5},{"name":"美股纳指100","w":0.14,"dy":0.6,"g":8.0,"v":-2.5},{"name":"黄金","w":0.13,"dy":0.0,"g":3.5,"v":0.0},{"name":"债券","w":0.15,"dy":1.68,"g":0.5,"v":0.0}]}}};
+const CSS = k => getComputedStyle(document.documentElement).getPropertyValue(k).trim();
+const NS = "http://www.w3.org/2000/svg";
+const E = (n,a={}) => { const e=document.createElementNS(NS,n); for(const k in a) e.setAttribute(k,a[k]); return e; };
+const TX = (x,y,t,o={}) => { const e=E("text",Object.assign({x,y,"font-size":11,"font-family":"var(--sm)"},o)); e.textContent=t; return e; };
+const pct = (v,d=2) => (v*100).toFixed(d)+"%";
+const tip = document.getElementById("tip");
+function show(x,y,html){ tip.innerHTML=html; tip.style.opacity=1;
+  const r=tip.getBoundingClientRect();
+  tip.style.left=Math.min(x+14, innerWidth-r.width-10)+"px";
+  tip.style.top=Math.max(8, y-r.height-12)+"px"; }
+function hide(){ tip.style.opacity=0; }
+
+/* ============ 折线图 ============ */
+function line(id,cfg){
+  const svg=document.getElementById(id); if(!svg) return; svg.innerHTML="";
+  const vb=svg.getAttribute("viewBox").split(" ").map(Number), W=vb[2], H=vb[3];
+  const P=cfg.pad||{l:60,r:82,t:14,b:32}, iw=W-P.l-P.r, ih=H-P.t-P.b, n=cfg.x.length;
+  const X=i=>P.l+(n<2?0:i/(n-1)*iw), Y=v=>P.t+ih-(v-cfg.lo)/(cfg.hi-cfg.lo)*ih;
+  cfg.ticks.forEach(t=>{
+    const y=Y(t), z=cfg.zero!==undefined&&Math.abs(t-cfg.zero)<1e-9;
+    svg.appendChild(E("line",{x1:P.l,x2:P.l+iw,y1:y,y2:y,stroke:z?CSS("--muted"):CSS("--rule-2"),
+      "stroke-width":1,"stroke-dasharray":z?"4 4":""}));
+    svg.appendChild(TX(P.l-10,y+4,cfg.ft(t),{"text-anchor":"end",fill:CSS("--muted")}));
+  });
+  let last="";
+  for(let i=0;i<n;i++){ const yr=cfg.x[i].slice(0,4);
+    if(yr!==last){ if(+yr%(cfg.xs||3)===0&&i>2&&i<n-2)
+        svg.appendChild(TX(X(i),H-11,yr,{"text-anchor":"middle",fill:CSS("--muted")})); last=yr; } }
+  cfg.s.forEach(s=>{
+    let d=""; for(let i=0;i<n;i++){ const v=s.v[i]; if(v==null) continue;
+      d+=(d===""?"M":"L")+X(i).toFixed(1)+" "+Y(v).toFixed(1); }
+    if(s.fill) svg.appendChild(E("path",{d:d+`L${X(n-1)} ${Y(cfg.lo)} L${X(0)} ${Y(cfg.lo)} Z`,
+      fill:s.c,opacity:.07,stroke:"none"}));
+    svg.appendChild(E("path",{d,fill:"none",stroke:s.c,"stroke-width":s.w||2,
+      "stroke-linejoin":"round","stroke-linecap":"round","stroke-dasharray":s.dash||""}));
+    if(s.lab){ const yv=s.v[n-1];
+      svg.appendChild(E("circle",{cx:X(n-1),cy:Y(yv),r:3.5,fill:s.c,stroke:CSS("--ground"),"stroke-width":2}));
+      svg.appendChild(TX(X(n-1)+9,Y(yv)+4,s.lab,{fill:s.c,"font-weight":600,"font-size":11.5})); }
+  });
+  const hv=E("line",{x1:0,x2:0,y1:P.t,y2:P.t+ih,stroke:CSS("--muted"),"stroke-width":1,opacity:0});
+  svg.appendChild(hv);
+  const dots=cfg.s.map(s=>{const c=E("circle",{r:4,fill:s.c,stroke:CSS("--ground"),"stroke-width":2,opacity:0});
+    svg.appendChild(c); return c;});
+  const hit=E("rect",{x:P.l,y:P.t,width:iw,height:ih,fill:"transparent"}); svg.appendChild(hit);
+  hit.addEventListener("mousemove",ev=>{
+    const r=svg.getBoundingClientRect(), px=(ev.clientX-r.left)/r.width*W;
+    let i=Math.max(0,Math.min(n-1,Math.round((px-P.l)/iw*(n-1))));
+    hv.setAttribute("x1",X(i)); hv.setAttribute("x2",X(i)); hv.setAttribute("opacity",.45);
+    let h=`<b>${cfg.x[i]}</b><br>`;
+    cfg.s.forEach((s,k)=>{ const v=s.v[i];
+      dots[k].setAttribute("cx",X(i)); dots[k].setAttribute("cy",Y(v)); dots[k].setAttribute("opacity",1);
+      h+=`<span style="color:${s.c}">■</span> ${s.n} ${cfg.fv(v)}<br>`; });
+    if(cfg.ex) h+=cfg.ex(i);
+    show(ev.clientX,ev.clientY,h);
+  });
+  hit.addEventListener("mouseleave",()=>{hv.setAttribute("opacity",0);
+    dots.forEach(d=>d.setAttribute("opacity",0)); hide();});
+}
+
+/* ============ 图1 定投轨迹 ============ */
+function c1(){ const d=D.dca;
+  line("c1",{x:d.d,lo:0,hi:750000,ticks:[0,150000,300000,450000,600000,750000],
+    ft:v=>v===0?"0":(v/10000)+"万", fv:v=>(v/10000).toFixed(1)+"万", xs:2,
+    s:[{n:"本方案",v:d.port,c:CSS("--gold"),w:2.4,fill:1,lab:"68.6万"},
+       {n:"沪深300",v:d.hs300,c:CSS("--blue"),w:2,lab:"38.2万"},
+       {n:"本金",v:d.cost,c:CSS("--muted"),w:1.5,dash:"5 4",lab:"22.3万"}],
+    ex:i=>{const g=d.port[i]/d.cost[i]-1,h=d.hs300[i]/d.cost[i]-1,c=v=>v>=0?CSS("--pos"):CSS("--neg");
+      return `<span style="opacity:.62">浮盈 本方案</span> <span style="color:${c(g)}">${(g*100).toFixed(1)}%</span> <span style="opacity:.62">／300</span> <span style="color:${c(h)}">${(h*100).toFixed(1)}%</span>`;}});
+}
+/* ============ 图2 滚动10年IRR ============ */
+function c2(){ const r=D.roll["10y"];
+  line("c2",{x:r.d,lo:-0.02,hi:0.14,ticks:[0,.03,.06,.09,.12],zero:0,
+    ft:v=>(v*100).toFixed(0)+"%", fv:v=>(v*100).toFixed(2)+"%", xs:2, pad:{l:54,r:92,t:14,b:32},
+    s:[{n:"本方案",v:r.p,c:CSS("--gold"),w:2.4,lab:"本方案"},
+       {n:"沪深300",v:r.h,c:CSS("--blue"),w:2,lab:"沪深300"}],
+    ex:i=>`<span style="opacity:.62">${r.d[i]} 起投，满 10 年</span>`});
+}
+/* ============ 图3 起点敏感性 range plot ============ */
+function c3(){
+  const svg=document.getElementById("c3"); if(!svg) return; svg.innerHTML="";
+  const rows=D.sens.rows.slice().sort((a,b)=>a.rng-b.rng);
+  const W=1000,H=430,P={l:98,r:118,t:34,b:36}, iw=W-P.l-P.r, ih=H-P.t-P.b;
+  const lo=0, hi=0.19, X=v=>P.l+(v-lo)/(hi-lo)*iw, bh=ih/rows.length;
+  for(let t=0;t<=0.18;t+=0.03){
+    svg.appendChild(E("line",{x1:X(t),x2:X(t),y1:P.t-8,y2:P.t+ih,stroke:CSS("--rule-2"),"stroke-width":1}));
+    svg.appendChild(TX(X(t),P.t-15,(t*100).toFixed(0)+"%",{"text-anchor":"middle",fill:CSS("--muted"),"font-size":10.5}));
+  }
+  svg.appendChild(TX(P.l,H-8,"← 滚动 10 年定投 IRR 中位数（四个起点窗口）",{fill:CSS("--muted"),"font-size":10.5}));
+  rows.forEach((r,i)=>{
+    const y=P.t+bh*i+bh/2, isP=r.kind==="port";
+    const col=isP?CSS("--gold"):(r.rng>0.03?CSS("--blue"):CSS("--muted"));
+    svg.appendChild(TX(P.l-12,y+4,r.name,{"text-anchor":"end",fill:isP?CSS("--gold"):CSS("--ink-2"),
+      "font-family":"var(--ss)","font-size":12.5,"font-weight":isP?600:400}));
+    if(isP) svg.appendChild(E("rect",{x:P.l-92,y:y-bh/2+3,width:iw+92+108,height:bh-6,
+      fill:CSS("--gold"),opacity:.055,rx:3}));
+    svg.appendChild(E("line",{x1:X(r.lo),x2:X(r.hi),y1:y,y2:y,stroke:col,
+      "stroke-width":isP?5:3.5,"stroke-linecap":"round",opacity:isP?1:.55}));
+    r.v.forEach((v,k)=>{ if(v==null) return;
+      const c=E("circle",{cx:X(v),cy:y,r:isP?5:4,fill:col,stroke:CSS("--ground"),"stroke-width":1.6});
+      c.addEventListener("mouseenter",ev=>show(ev.clientX,ev.clientY,
+        `<b>${r.name}</b><br>${D.sens.starts[k]} 起：${pct(v)}`));
+      c.addEventListener("mouseleave",hide); svg.appendChild(c); });
+    svg.appendChild(TX(X(r.hi)+12,y+4,"极差 "+(r.rng*100).toFixed(2)+"pp",
+      {fill:isP?CSS("--gold"):CSS("--muted"),"font-size":11,"font-weight":isP?600:400}));
+  });
+}
+/* ============ 图4/5 分布直方图 ============ */
+function hist(id,series,opt){
+  const svg=document.getElementById(id); if(!svg) return; svg.innerHTML="";
+  const vb=svg.getAttribute("viewBox").split(" ").map(Number),W=vb[2],H=vb[3];
+  const P={l:52,r:20,t:16,b:36}, iw=W-P.l-P.r, ih=H-P.t-P.b;
+  const ed=series[0].edges, lo=ed[0], hi=ed[ed.length-1];
+  const X=v=>P.l+(v-lo)/(hi-lo)*iw;
+  const mx=Math.max(...series.flatMap(s=>s.hist))*1.08;
+  const Y=v=>P.t+ih-v/mx*ih;
+  for(let t=Math.ceil(lo*20)/20;t<=hi;t+=0.05){
+    svg.appendChild(E("line",{x1:X(t),x2:X(t),y1:P.t,y2:P.t+ih,stroke:CSS("--rule-2")}));
+    svg.appendChild(TX(X(t),H-12,(t*100).toFixed(0)+"%",{"text-anchor":"middle",fill:CSS("--muted"),"font-size":10.5}));
+  }
+  svg.appendChild(E("line",{x1:X(0),x2:X(0),y1:P.t,y2:P.t+ih,stroke:CSS("--muted"),"stroke-dasharray":"4 4"}));
+  series.forEach(s=>{
+    let d=""; s.hist.forEach((h,i)=>{ const x=X((s.edges[i]+s.edges[i+1])/2);
+      d+=(d===""?"M":"L")+x.toFixed(1)+" "+Y(h).toFixed(1); });
+    svg.appendChild(E("path",{d:d+`L${X(hi)} ${P.t+ih} L${X(lo)} ${P.t+ih} Z`,fill:s.c,opacity:.13}));
+    svg.appendChild(E("path",{d,fill:"none",stroke:s.c,"stroke-width":2.2,"stroke-linejoin":"round"}));
+    const my=Y(Math.max(...s.hist));
+    svg.appendChild(E("line",{x1:X(s.med),x2:X(s.med),y1:my-6,y2:P.t+ih,stroke:s.c,"stroke-width":1.5,"stroke-dasharray":"3 3"}));
+    svg.appendChild(TX(X(s.med),my-11,s.n+" "+pct(s.med,1),{"text-anchor":"middle",fill:s.c,"font-size":11,"font-weight":600}));
+  });
+  svg.appendChild(TX(W-P.r,P.t+ih+26,opt.xlab,{fill:CSS("--muted"),"font-size":10.5,"text-anchor":"end"}));
+}
+function c4(){ hist("c4",[
+  {n:"本方案",med:D.boot.port.med,hist:D.boot.port.hist,edges:D.boot.port.edges,c:CSS("--gold")},
+  {n:"沪深300",med:D.boot.hs.med,hist:D.boot.hs.hist,edges:D.boot.hs.edges,c:CSS("--blue")}],
+  {xlab:"10 年定投年化 IRR →"}); }
+function c5(){ hist("c5",[
+  {n:"历史重演",med:D.mc.base.med,hist:D.mc.base.hist,edges:D.mc.base.edges,c:CSS("--gold")},
+  {n:"打8折",med:D.mc.f80.med,hist:D.mc.f80.hist,edges:D.mc.f80.edges,c:CSS("--rose")},
+  {n:"打6折",med:D.mc.f60.med,hist:D.mc.f60.hist,edges:D.mc.f60.edges,c:CSS("--blue")}],
+  {xlab:"20 年定投年化 IRR →"}); }
+
+/* ============ 相关性热力图 ============ */
+function heat(){
+  const {labels,m}=D.corr,N=labels.length,g=document.getElementById("heat"); if(!g) return;
+  const SH={"A股红利":"红利","A股沪深300":"沪深300","A股中证500":"中证500","港股恒生":"恒生",
+            "美股标普500":"标普500","美股纳指100":"纳指100","黄金":"黄金","债券":"债券"};
+  g.style.gridTemplateColumns=`104px repeat(${N}, minmax(66px,1fr))`; g.innerHTML="";
+  const c0=document.createElement("div"); c0.className="lt"; g.appendChild(c0);
+  labels.forEach(l=>{const d=document.createElement("div"); d.className="lt"; d.textContent=SH[l]||l; g.appendChild(d);});
+  for(let i=0;i<N;i++){
+    const lb=document.createElement("div"); lb.className="lb"; lb.textContent=labels[i]; g.appendChild(lb);
+    for(let j=0;j<N;j++){ const v=m[i][j], c=document.createElement("div"), a=Math.min(1,Math.abs(v));
+      if(i===j){ c.style.background="none"; c.style.color=CSS("--muted");
+        c.style.border="1px solid "+CSS("--rule-2"); }
+      else { c.style.background=`color-mix(in srgb, ${v>=0?CSS("--gold"):CSS("--blue")} ${(a*58).toFixed(0)}%, ${CSS("--panel")})`;
+        c.style.color=CSS("--ink"); }
+      c.textContent=v.toFixed(2); c.title=`${labels[i]} × ${labels[j]} = ${v.toFixed(2)}`;
+      g.appendChild(c); }
+  }
+}
+/* ============ 全维度矩阵 ============ */
+function mx(){
+  const M=D.matrix, g=document.getElementById("mx"); if(!g) return;
+  const cols=M.hor.length;
+  g.style.display="grid"; g.style.gap="2px"; g.style.minWidth="660px";
+  g.style.gridTemplateColumns=`74px repeat(${cols}, minmax(62px,1fr))`;
+  g.innerHTML="";
+  const cell=(txt,style="")=>{const d=document.createElement("div"); d.textContent=txt;
+    d.setAttribute("style","height:34px;display:grid;place-items:center;font-family:var(--sm);font-size:11px;border-radius:2px;font-variant-numeric:tabular-nums;"+style);
+    return d;};
+  const head=(txt)=>cell(txt,`height:26px;font-family:var(--ss);font-size:11px;color:${CSS("--muted")};background:none;`);
+  const color=v=>{ if(v==null) return CSS("--rule-3");
+    const a=Math.min(1,Math.abs(v)/0.18);
+    return v>=0 ? `color-mix(in srgb, ${CSS("--gold")} ${(a*62).toFixed(0)}%, ${CSS("--panel")})`
+                : `color-mix(in srgb, ${CSS("--neg")} ${(Math.min(1,Math.abs(v)/0.20)*70).toFixed(0)}%, ${CSS("--panel")})`; };
+  [["port","★ 本方案"],["hs","全仓沪深300"]].forEach(([key,title],bi)=>{
+    const t=document.createElement("div");
+    t.setAttribute("style",`grid-column:1/-1;font-family:var(--ss);font-size:12.5px;font-weight:600;color:${bi?CSS("--blue"):CSS("--gold")};padding:${bi?"18px":"2px"} 0 6px;`);
+    t.textContent=title; g.appendChild(t);
+    g.appendChild(head("起投年"));
+    M.hor.forEach(h=>g.appendChild(head(h+"年")));
+    M.years.forEach((y,ri)=>{
+      if(M[key][ri].every(v=>v==null)) return;
+      g.appendChild(cell(y,`font-family:var(--ss);font-size:11.5px;color:${CSS("--ink-2")};background:none;justify-content:end;padding-right:9px;`));
+      M[key][ri].forEach((v,ci)=>{
+        const d=cell(v==null?"—":(v*100).toFixed(1)+"%",
+          `background:${color(v)};color:${v==null?CSS("--muted"):CSS("--ink")};`);
+        if(v!=null){ d.title=`${y} 年起投，持有 ${M.hor[ci]} 年：${pct(v)}`;
+          if(v<0) d.style.fontWeight="600"; }
+        g.appendChild(d);
+      });
+    });
+  });
+}
+/* ============ 表格 ============ */
+function tables(){
+  const q=id=>document.getElementById(id);
+  const S=D.stat, rows=[["5年","5y"],["10年","10y"],["15年","15y"]];
+  let h="";
+  rows.forEach(([lab,k])=>{
+    const p=S[k].port,b=S[k].hs;
+    h+=`<tr><td rowspan="2"><b>${lab}</b></td><td>★ 本方案</td><td class="n em">${pct(p.med)}</td><td class="n">${pct(p.p10)}</td>
+        <td class="n">${pct(p.p90)}</td><td class="n pos">+${pct(p.mn)}</td><td class="n pos">${pct(p.loss,1)}</td>
+        <td class="n">${pct(p.dd,1)}</td><td class="n">${p.n}</td></tr>
+        <tr><td>全仓沪深300</td><td class="n">${pct(b.med)}</td><td class="n ${b.p10<0?'neg':''}">${pct(b.p10)}</td>
+        <td class="n">${pct(b.p90)}</td><td class="n ${b.mn<0?'neg':'pos'}">${b.mn>=0?'+':''}${pct(b.mn)}</td>
+        <td class="n ${b.loss>0.05?'neg':''}">${pct(b.loss,1)}</td><td class="n">${pct(b.dd,1)}</td><td class="n">${b.n}</td></tr>`;
+  });
+  if(q("tbl-stat")) q("tbl-stat").innerHTML=h;
+
+  const NOTE={"A股红利":"A股唯一稳定的权益资产","中证500":"起点决定一切，极差 4.6pp","沪深300":"看起来稳，其实是低收益的稳",
+    "港股红利":"估值洼地，但历史含回溯模拟","标普500":"高收益且相当稳定","纳指100":"收益最高，波动区间也小",
+    "黄金":"单独看最挑时点，组合里却是稳定器","债券":"最稳但只有 4.3%","★本方案":"收益第三高，极差全场最小"};
+  h="";
+  D.sens.rows.slice().sort((a,b)=>a.rng-b.rng).forEach(r=>{
+    const isP=r.kind==="port";
+    h+=`<tr${isP?' style="background:var(--gold-w)"':''}><td>${isP?'<b>★ 本方案</b>':r.name}</td>`;
+    r.v.forEach(v=>{ h+=`<td class="n">${v==null?'—':pct(v)}</td>`; });
+    h+=`<td class="n">${pct(r.lo,1)}–${pct(r.hi,1)}</td><td class="n ${isP?'em':''}">${(r.rng*100).toFixed(2)}pp</td>
+        <td class="wide">${NOTE[r.name]||''}</td></tr>`;
+  });
+  if(q("tbl-sens")) q("tbl-sens").innerHTML=h;
+
+  h=""; let a=[0,0,0,0];
+  D.wf.forEach(r=>{ a=[a[0]+r.opt,a[1]+r.pln,a[2]+r.eq,a[3]+r.hs];
+    h+=`<tr><td>${r.tr} → ${r.te}</td><td class="n">${pct(r.opt)}</td><td class="n em">${pct(r.pln)}</td>
+        <td class="n">${pct(r.eq)}</td><td class="n">${pct(r.hs)}</td>
+        <td class="n ${r.opt-r.pln<0?'pos':''}">${r.opt-r.pln>=0?'+':''}${((r.opt-r.pln)*100).toFixed(2)}</td></tr>`; });
+  const N=D.wf.length;
+  h+=`<tr class="sum"><td>平均</td><td class="n">${pct(a[0]/N)}</td><td class="n em">${pct(a[1]/N)}</td>
+      <td class="n">${pct(a[2]/N)}</td><td class="n">${pct(a[3]/N)}</td>
+      <td class="n pos">${((a[0]-a[1])/N*100).toFixed(2)}</td></tr>`;
+  if(q("tbl-wf")) q("tbl-wf").innerHTML=h;
+
+  h=`<tr><td>基准（精确权重）</td><td class="n">—</td><td class="n em">${pct(D.base.med)}</td><td class="n">—</td>
+      <td class="n">${pct(D.base.min)}</td><td>—</td></tr>`;
+  [["3","±3pp"],["5","±5pp"],["8","±8pp"]].forEach(([k,lab])=>{
+    const p=D.pert[k];
+    h+=`<tr><td>随机扰动 ${lab}</td><td class="n">${pct(p.med_lo)} – ${pct(p.med_hi)}</td>
+        <td class="n em">${pct(p.med_mean)}</td>
+        <td class="n" style="color:${Math.abs(p.med_mean-D.base.med)<0.001?CSS("--muted"):(p.med_mean>=D.base.med?CSS("--pos"):CSS("--ink-2"))}">${((p.med_mean-D.base.med)*100>=0?'+':'')}${((p.med_mean-D.base.med)*100).toFixed(2)}pp</td>
+        <td class="n">${pct(p.min_mean)}</td><td class="pos">${p.all_pos?'是 · 150/150':'否'}</td></tr>`;
+  });
+  if(q("tbl-pert")) q("tbl-pert").innerHTML=h;
+}
+/* ============ 导航高亮 ============ */
+function nav(){
+  const ls=[...document.querySelectorAll("nav a")], secs=ls.map(a=>document.querySelector(a.getAttribute("href")));
+  const io=new IntersectionObserver(es=>{
+    es.forEach(e=>{ if(e.isIntersecting){ const i=secs.indexOf(e.target);
+      ls.forEach(l=>l.classList.remove("on")); if(i>=0) ls[i].classList.add("on"); } });
+  },{rootMargin:"-15% 0px -75% 0px"});
+  secs.forEach(s=>s&&io.observe(s));
+}
+function draw(){ c1(); c2(); c3(); c4(); c5(); heat(); mx(); }
+draw(); tables(); nav();
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change",draw);
+new MutationObserver(draw).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+addEventListener("resize",()=>{clearTimeout(window._t); window._t=setTimeout(draw,180);});
+</script>

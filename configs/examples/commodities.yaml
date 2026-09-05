@@ -1,0 +1,10 @@
+# 赛道示例 · 商品
+# 期货主力连续作为价格代理，历史比商品基金长得多（沪铜可回溯到 2005）。
+# 注意：主力连续含移仓损益，若要落到可买产品，用 tracking_diff 校准。
+name: 商品篮子
+monthly_amount: 1000
+assets:
+  - {name: 黄金,  source: sina_fut, code: AU0, weight: 0.40, tracking_diff: 0.0030, note: "2008起"}
+  - {name: 白银,  source: sina_fut, code: AG0, weight: 0.20, tracking_diff: 0.0050, note: "2012起"}
+  - {name: 铜,    source: sina_fut, code: CU0, weight: 0.25, tracking_diff: 0.0050, note: "2005起，最长"}
+  - {name: 原油,  source: sina_fut, code: SC0, weight: 0.15, tracking_diff: 0.0080, note: "2018起，较短"}

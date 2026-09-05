@@ -1,0 +1,33 @@
+# 极简 5 只版：收益与 7 只版几乎相同，但波动/回撤/浮亏都更小
+# 每月 2000 元的分配：红利 560 ／ 标普 340 ／ 纳指 300 ／ 黄金 300 ／ 债券 500
+# code = 实际要买的基金；proxy = 回测用的长历史代理。用法见 default.yaml 顶部
+name: 极简5只
+monthly_amount: 2000
+buy_fee: 0.0012
+
+assets:
+  - name: A股红利
+    source: fund
+    code: "009051"
+    weight: 0.28
+    proxy: {source: csindex, code: H00922, annual_fee: 0.0020}
+  - name: 美股标普500
+    source: fund
+    code: "017641"
+    weight: 0.17
+    proxy: {source: sina_us, code: ".INX", dividend: 0.019, fx: USDCNY, annual_fee: 0.0065}
+  - name: 美股纳指100
+    source: fund
+    code: "016532"
+    weight: 0.15
+    proxy: {source: sina_us, code: ".IXIC", dividend: 0.009, fx: USDCNY, annual_fee: 0.0065}
+  - name: 黄金
+    source: fund
+    code: "008701"
+    weight: 0.15
+    proxy: {source: sina_fut, code: AU0, tracking_diff: 0.0030}
+  - name: 债券
+    source: fund
+    code: "006961"
+    weight: 0.25
+    proxy: {source: csindex, code: H11001, annual_fee: 0.0030}
