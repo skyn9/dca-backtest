@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """报告模板：CSS + 通用图表 JS。数据由 builder 注入 __DATA__。"""
 
 CSS = """

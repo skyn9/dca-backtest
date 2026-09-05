@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
 """数据源注册与清洗逻辑，不发起网络请求。"""
 import pandas as pd
-import pytest
+
 from dca.sources import available
-from dca.sources.base import Source, MIN_GAP
+from dca.sources.base import MIN_GAP, Source
 
 
 def test_expected_sources_registered():

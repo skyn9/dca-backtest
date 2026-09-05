@@ -1,12 +1,13 @@
-# -*- coding: utf-8 -*-
 """稳健性检验：样本外 / 权重扰动 / Block Bootstrap / 蒙特卡洛 / 压力情景。
 
 这些是判断"回测结果是真规律还是过拟合"的工具，也是本项目最该被复用的部分。
 """
 from __future__ import annotations
+
 import numpy as np
 import pandas as pd
-from ..engine import rolling_dca, dca_path, xirr_monthly
+
+from ..engine import dca_path, rolling_dca, xirr_monthly
 
 __all__ = ["walk_forward", "weight_perturbation", "block_bootstrap",
            "monte_carlo", "stress_scenarios", "optimize_weights"]
@@ -47,7 +48,7 @@ def optimize_weights(returns: pd.DataFrame, *, horizon_y: int = 10, objective: s
         raise RuntimeError("约束过紧，没有可行解")
     cands.sort(key=lambda x: -x[0])
     W = np.array([c[1] for c in cands[:top_k]])
-    tab = pd.DataFrame([dict(zip(cols, w), score=s) for s, w in cands[:top_k]])
+    tab = pd.DataFrame([dict(zip(cols, w, strict=True), score=s) for s, w in cands[:top_k]])
     return W.mean(axis=0), tab
 
 
@@ -109,7 +110,8 @@ def weight_perturbation(returns: pd.DataFrame, weights, *, horizon_y: int = 10,
         for _ in range(n):
             w = np.clip(w0 + rng.uniform(-lv, lv, len(w0)), 0.005, None)
             a, b = stat(w / w.sum())
-            ms.append(a); mn.append(b)
+            ms.append(a)
+            mn.append(b)
         rows.append({"level": f"±{lv*100:.0f}pp", "med_mean": float(np.mean(ms)),
                      "med_lo": float(np.min(ms)), "med_hi": float(np.max(ms)),
                      "min_mean": float(np.mean(mn)),

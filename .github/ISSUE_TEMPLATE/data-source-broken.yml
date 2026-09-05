@@ -1,0 +1,47 @@
+name: 数据源失效
+description: dca fetch 报错、拿不到数据、或数据明显异常
+title: "[数据源] "
+labels: ["data-source"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        公开行情接口变更是本项目最高频的问题。提交前请先确认不是**限流**：
+        换个网络、或等 30 分钟再试一次。中证指数官网限流较严，通常会自行恢复。
+  - type: input
+    id: source
+    attributes:
+      label: 数据源与代码
+      placeholder: "csindex / H00922"
+    validations: { required: true }
+  - type: textarea
+    id: cmd
+    attributes:
+      label: 复现命令与完整报错
+      render: shell
+      placeholder: |
+        $ python -m dca fetch -c configs/default.yaml
+        RuntimeError: GET failed after 4 tries: ...
+    validations: { required: true }
+  - type: dropdown
+    id: kind
+    attributes:
+      label: 现象
+      options:
+        - 请求失败 / 超时
+        - 返回空数据
+        - 拿到了数据但数值明显不对
+        - 字段结构变了，解析失败
+    validations: { required: true }
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: 已确认
+      options:
+        - label: 换过网络或等待后重试，仍然失败
+        - label: 已删除 data/ 下对应的缓存文件后重试
+  - type: input
+    id: env
+    attributes:
+      label: 环境
+      placeholder: "macOS 14 / Python 3.12 / dca 0.1.0"

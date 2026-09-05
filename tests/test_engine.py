@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 """引擎自检：全部用已知答案校验，不依赖网络。"""
 import numpy as np
 import pandas as pd
 import pytest
 
-from dca.engine import xirr_monthly, dca_path, rolling_dca, lumpsum_rolling, perf_stats
+from dca.engine import dca_path, lumpsum_rolling, perf_stats, rolling_dca, xirr_monthly
 
 
 def const_returns(n, r, start="2010-01-31"):
@@ -75,7 +74,6 @@ def test_cashflow_rebalance_pulls_toward_target():
     """一涨一跌两个资产：现金流再平衡后的末期权重必须比不平衡更接近 50/50"""
     idx = pd.date_range("2010-01-31", periods=48, freq="ME")
     R = pd.DataFrame({"up": [0.02] * 48, "down": [-0.01] * 48}, index=idx)
-    w = pd.Series({"up": 0.5, "down": 0.5})
     dev = {}
     for mode in ("cashflow", "none"):
         units = np.zeros(2)

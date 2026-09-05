@@ -1,11 +1,16 @@
-# -*- coding: utf-8 -*-
 """数据源抽象层：统一接口 + 本地缓存 + 全局节流。
 
 新增一个赛道 = 新增一个 Source 子类并注册，其余（回测/分析/报告）全部自动可用。
 """
 from __future__ import annotations
-import os, re, time, random, threading
+
+import os
+import random
+import re
+import threading
+import time
 from abc import ABC, abstractmethod
+
 import pandas as pd
 import requests
 

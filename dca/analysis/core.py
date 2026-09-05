@@ -1,9 +1,10 @@
-# -*- coding: utf-8 -*-
 """核心分析：滚动窗口 / 起点敏感性 / 全周期矩阵。"""
 from __future__ import annotations
+
 import numpy as np
 import pandas as pd
-from ..engine import rolling_dca, summarize, lumpsum_rolling, dca_path
+
+from ..engine import dca_path, lumpsum_rolling, rolling_dca, summarize
 
 DEFAULT_HORIZONS = (3, 5, 10, 15)
 
@@ -59,26 +60,28 @@ def asset_start_sensitivity(portfolio, windows: dict[str, str], horizon_y: int =
     for nm in names:
         a = portfolio.asset(nm, use_proxy=use_proxy)
         vals = []
-        for tag, st in windows.items():
+        for st in windows.values():
             s = px[nm].dropna()
             s = s[s.index >= st]
             r = s.pct_change().dropna() - a.gross_drag / 12.0
             H = horizon_y * 12
             if len(r) < H + 6:
-                vals.append(np.nan); continue
+                vals.append(np.nan)
+                continue
             rd = rolling_dca(r, None, H, **kw)
             vals.append(float(rd["irr"].median()) if len(rd) else np.nan)
-        rows.append({"name": nm, "kind": "asset", **dict(zip(windows, vals))})
+        rows.append({"name": nm, "kind": "asset", **dict(zip(windows, vals, strict=True))})
     if include_portfolio:
         vals = []
-        for tag, st in windows.items():
+        for st in windows.values():
             r = portfolio.returns(start=st, use_proxy=use_proxy)
             H = horizon_y * 12
             if len(r) < H + 6:
-                vals.append(np.nan); continue
+                vals.append(np.nan)
+                continue
             rd = rolling_dca(r, portfolio.weights, H, **kw)
             vals.append(float(rd["irr"].median()) if len(rd) else np.nan)
-        rows.append({"name": f"★ {portfolio.name}", "kind": "portfolio", **dict(zip(windows, vals))})
+        rows.append({"name": f"★ {portfolio.name}", "kind": "portfolio", **dict(zip(windows, vals, strict=True))})
     df = pd.DataFrame(rows)
     vc = [c for c in df.columns if c not in ("name", "kind")]
     df["lo"] = df[vc].min(axis=1)
@@ -103,7 +106,8 @@ def year_horizon_matrix(returns, weights=None, years=None, horizons=(1, 2, 3, 5,
         for h in horizons:
             H = h * 12
             if s + H > len(returns):
-                row[h] = np.nan; continue
+                row[h] = np.nan
+                continue
             res = dca_path(returns.iloc[s:s + H], weights, **kw)
             row[h] = res[1] if res else np.nan
         if not all(np.isnan(v) for v in row.values()):

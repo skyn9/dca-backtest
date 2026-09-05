@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 先读一下局限说明
+    url: https://github.com/skyn9/dca-backtest/blob/main/docs/limitations.md
+    about: 回测的固有边界、已知数据陷阱、以及为什么历史收益率不能当预期
+  - name: 如何新增数据源 / 赛道
+    url: https://github.com/skyn9/dca-backtest/blob/main/CONTRIBUTING.md
+    about: 写一个 Source 子类即可，回测与报告会自动支持

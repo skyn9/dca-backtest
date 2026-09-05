@@ -1,5 +1,12 @@
 # dca — 定投组合回测与稳健性检验
 
+[![tests](https://github.com/skyn9/dca-backtest/actions/workflows/tests.yml/badge.svg)](https://github.com/skyn9/dca-backtest/actions/workflows/tests.yml)
+[![Python](https://img.shields.io/badge/python-3.10%20|%203.11%20|%203.12%20|%203.13-blue)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Ruff](https://img.shields.io/badge/lint-ruff-261230)](https://github.com/astral-sh/ruff)
+
+> 不告诉你「历史年化多少」，而是告诉你**这个数字有多不可靠**。
+
 一个用来回答**「这个定投组合到底靠不靠谱」**的框架。
 
 它的重点不是算出某个组合历史年化多少——那个数字几乎总是被起点美化过——
@@ -159,6 +166,18 @@ archive/       最初的一次性研究脚本，仅作留档
 回测有其固有局限：滚动窗口样本高度重叠、指数基金存在生存者偏差、
 历史收益率（尤其是债券与美股）大概率不可持续。
 使用前请阅读 `docs/limitations.md`。请根据自身情况判断，必要时咨询有资质的投资顾问。
+
+## 相关文档
+
+- [`docs/limitations.md`](docs/limitations.md) —— 方法与数据的全部已知边界，**建议先读**
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) —— 如何新增数据源、口径校验要求、测试规范
+- [`CHANGELOG.md`](CHANGELOG.md) —— 版本历史，含研究过程中修正的错误
+- [`docs/example-report.html`](docs/example-report.html) —— 一份完整的报告产出示例
+
+## 贡献
+
+最需要的是**修复失效的数据源**——公开行情接口经常无预警变更。
+新增一个赛道只需写一个 `Source` 子类，回测与报告会自动支持。详见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 ## License
 

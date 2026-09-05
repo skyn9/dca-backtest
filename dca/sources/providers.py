@@ -1,9 +1,12 @@
-# -*- coding: utf-8 -*-
 """具体数据源实现。每个类覆盖一个赛道。"""
 from __future__ import annotations
-import re, json
+
+import json
+import re
+
 import pandas as pd
-from .base import Source, register, http_get
+
+from .base import Source, http_get, register
 
 
 @register

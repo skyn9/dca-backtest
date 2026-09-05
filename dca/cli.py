@@ -1,19 +1,24 @@
-# -*- coding: utf-8 -*-
 """命令行入口：dca <command> -c <config.yaml>"""
 from __future__ import annotations
-import argparse, sys, os
-import numpy as np
+
+import argparse
+import os
+import sys
+
 import pandas as pd
 
-from .portfolio import Portfolio
 from . import analysis as A
-from .engine import rolling_dca, dca_path, perf_stats
+from .engine import dca_path, perf_stats
+from .portfolio import Portfolio
 from .sources import available
 
 pd.set_option("display.width", 220)
 pd.set_option("display.max_columns", 40)
 
-PCT = lambda v, d=2: "—" if v != v else f"{v*100:.{d}f}%"
+def PCT(v, d=2):
+    """百分比格式化；NaN 显示为破折号。"""
+    return "—" if v is None or v != v else f"{v*100:.{d}f}%"
+
 BAR = "─" * 96
 
 
@@ -132,7 +137,8 @@ def cmd_test(args):
         print(f"{'期限':<8}{'最好':>9}{'中位':>9}{'最差':>9}{'亏损年数':>10}")
         for h in mx.columns:
             v = mx[h].dropna()
-            if len(v) == 0: continue
+            if len(v) == 0:
+                continue
             print(f"{h:<3}年   {PCT(v.max()):>9}{PCT(v.median()):>9}{PCT(v.min()):>9}"
                   f"{int((v<0).sum()):>6}/{len(v):<4}")
 
@@ -163,12 +169,12 @@ def cmd_test(args):
     print(f"{'情景':<18}{'中位':>10}{'5%分位':>10}{'25%分位':>10}{'75%分位':>10}{'亏损概率':>11}")
     eq = [c for c in r.columns if "债" not in c and "bond" not in c.lower()]
     for tag, f in [("历史重演", 1.0), ("股票打8折", 0.8), ("股票打6折", 0.6)]:
-        shock = {c: f for c in eq} if f != 1.0 else None
+        shock = dict.fromkeys(eq, f) if f != 1.0 else None
         mc = A.monte_carlo(r, w, years=args.forward, n_paths=args.n_mc, shock=shock,
                            monthly=p.monthly_amount, buy_fee=p.buy_fee)
         print(f"{tag:<18}{PCT(mc.median()):>10}{PCT(mc.quantile(.05)):>10}"
               f"{PCT(mc.quantile(.25)):>10}{PCT(mc.quantile(.75)):>10}{PCT((mc<0).mean(),2):>11}")
-    print(f"\n※ 历史回测反映过去；蒙特卡洛的「打折」情景更接近合理预期。请勿用历史中位数做规划。")
+    print("\n※ 历史回测反映过去；蒙特卡洛的「打折」情景更接近合理预期。请勿用历史中位数做规划。")
 
 
 def cmd_optimize(args):
@@ -181,11 +187,11 @@ def cmd_optimize(args):
                                 n_iter=args.n_iter, max_weight=args.max_weight,
                                 monthly=p.monthly_amount, buy_fee=p.buy_fee)
     print(f"{'资产':<16}{'优化权重':>10}{'当前权重':>10}{'偏离':>10}")
-    for c, v in zip(r.columns, w):
+    for c, v in zip(r.columns, w, strict=True):
         cur = p.weights[c]
         print(f"{c:<16}{v*100:>9.1f}%{cur*100:>9.1f}%{(cur-v)*100:>+9.1f}pp")
-    print(f"\n※ 优化权重是「回头看」的结果。请用 `dca walkforward` 检验它在样本外是否站得住——")
-    print(f"  本项目的实测是：固定权重在样本外反而胜过训练段最优权重。")
+    print("\n※ 优化权重是「回头看」的结果。请用 `dca walkforward` 检验它在样本外是否站得住——")
+    print("  本项目的实测是：固定权重在样本外反而胜过训练段最优权重。")
 
 
 def cmd_walkforward(args):
@@ -194,7 +200,8 @@ def cmd_walkforward(args):
     r = _returns(p, args, need_years=14)
     yrs = sorted({d.year for d in r.index})
     if len(yrs) < 12:
-        print("窗口不足 12 年，样本外检验意义有限"); return
+        print("窗口不足 12 年，样本外检验意义有限")
+        return
     mid = yrs[len(yrs) // 2]
     splits = [(f"{yrs[0]}-01-01", f"{y}-12-31", f"{y+1}-01-01", f"{yrs[-1]}-12-31")
               for y in (mid - 1, mid, mid + 1) if y + 4 < yrs[-1]]
@@ -202,7 +209,8 @@ def cmd_walkforward(args):
     wf = A.walk_forward(r, splits, fixed_weights=p.weights, n_iter=args.n_iter,
                         monthly=p.monthly_amount, buy_fee=p.buy_fee)
     if wf.empty:
-        print("无有效切分"); return
+        print("无有效切分")
+        return
     print(f"{'训练 → 测试':<30}{'训练段最优(样本外)':>20}{'★本方案(固定)':>16}{'等权':>10}{'最优-本方案':>13}")
     for _, x in wf.iterrows():
         print(f"{x['train']} → {x['test']:<12}{PCT(x['opt_out']):>20}{PCT(x['fixed_out']):>16}"
@@ -227,7 +235,6 @@ def cmd_report(args):
     html_text = build(p, use_proxy=args.proxy, horizon=args.horizon, forward=args.forward,
                       n_boot=args.n_boot, n_mc=args.n_mc, n_pert=args.n_pert,
                       benchmark=bench, start=args.start, end=args.end)
-    import os
     os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
     with open(args.out, "w", encoding="utf-8") as f:
         f.write("<!doctype html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">"
@@ -251,35 +258,42 @@ def build_parser():
         sp.add_argument("--end", default=None)
         sp.add_argument("--horizon", type=int, default=horizon, help="主分析期限（年）")
 
-    s = sub.add_parser("sources", help="列出可用数据源"); s.set_defaults(func=cmd_sources)
+    s = sub.add_parser("sources", help="列出可用数据源")
+    s.set_defaults(func=cmd_sources)
+
     s = sub.add_parser("fetch", help="抓取并缓存数据")
     s.add_argument("-c", "--config", default="configs/default.yaml")
     s.add_argument("--force", action="store_true", help="忽略缓存重新抓取")
     s.add_argument("--proxy", action="store_true", help="只抓长历史代理")
     s.set_defaults(func=cmd_fetch)
 
-    s = sub.add_parser("run", help="基础回测"); common(s)
+    s = sub.add_parser("run", help="基础回测")
+    common(s)
     s.add_argument("--horizons", type=int, nargs="+", default=[3, 5, 10, 15])
     s.set_defaults(func=cmd_run)
 
-    s = sub.add_parser("test", help="全套稳健性检验（主命令）"); common(s)
+    s = sub.add_parser("test", help="全套稳健性检验（主命令）")
+    common(s)
     s.add_argument("--forward", type=int, default=20, help="蒙特卡洛前瞻年数")
     s.add_argument("--n-pert", type=int, default=100)
     s.add_argument("--n-boot", type=int, default=3000)
     s.add_argument("--n-mc", type=int, default=4000)
     s.set_defaults(func=cmd_test)
 
-    s = sub.add_parser("optimize", help="权重优化"); common(s)
+    s = sub.add_parser("optimize", help="权重优化")
+    common(s)
     s.add_argument("--objective", default="p10", choices=["p10", "median", "min"])
     s.add_argument("--max-weight", type=float, default=0.35)
     s.add_argument("--n-iter", type=int, default=2500)
     s.set_defaults(func=cmd_optimize)
 
-    s = sub.add_parser("walkforward", help="样本外检验"); common(s)
+    s = sub.add_parser("walkforward", help="样本外检验")
+    common(s)
     s.add_argument("--n-iter", type=int, default=2000)
     s.set_defaults(func=cmd_walkforward)
 
-    s = sub.add_parser("report", help="生成自包含 HTML 报告"); common(s)
+    s = sub.add_parser("report", help="生成自包含 HTML 报告")
+    common(s)
     s.add_argument("-o", "--out", default="out/report.html")
     s.add_argument("--benchmark", default=None,
                    help="基准，形如 csindex:H00300 或 fund:000051")
@@ -296,7 +310,8 @@ def main(argv=None):
     try:
         args.func(args)
     except FileNotFoundError as e:
-        print(f"找不到文件：{e}", file=sys.stderr); return 2
+        print(f"找不到文件：{e}", file=sys.stderr)
+        return 2
     except KeyboardInterrupt:
         return 130
     return 0

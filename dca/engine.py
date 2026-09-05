@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
 """定投回测引擎。所有收益率均为 IRR（按现金流时点加权），非"总收益÷总投入"。"""
 from __future__ import annotations
+
 import numpy as np
 import pandas as pd
 from scipy.optimize import brentq

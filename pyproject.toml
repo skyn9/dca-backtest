@@ -1,18 +1,52 @@
 [project]
 name = "dca-backtest"
 version = "0.1.0"
-description = "定投组合回测与稳健性检验框架：起点敏感性、样本外、权重扰动、Bootstrap、蒙特卡洛"
+description = "定投组合回测与稳健性检验框架：起点敏感性、全周期矩阵、样本外 walk-forward、权重扰动、Block Bootstrap、蒙特卡洛前瞻"
 readme = "README.md"
 requires-python = ">=3.10"
-license = {text = "MIT"}
-keywords = ["定投", "DCA", "backtest", "portfolio", "fund", "quant"]
+license = { text = "MIT" }
+authors = [{ name = "dca contributors" }]
+keywords = [
+  "定投", "基金定投", "资产配置", "回测", "量化",
+  "dca", "dollar-cost-averaging", "backtest", "portfolio",
+  "asset-allocation", "quant", "finance", "monte-carlo",
+  "walk-forward", "robustness",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Financial and Insurance Industry",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Natural Language :: Chinese (Simplified)",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Office/Business :: Financial :: Investment",
+  "Topic :: Scientific/Engineering :: Information Analysis",
+]
 dependencies = [
-  "pandas>=2.0", "numpy>=1.24", "scipy>=1.10",
-  "pyarrow>=12.0", "PyYAML>=6.0", "requests>=2.28",
+  "pandas>=2.0",
+  "numpy>=1.24",
+  "scipy>=1.10",
+  "pyarrow>=12.0",
+  "PyYAML>=6.0",
+  "requests>=2.28",
 ]
 
 [project.optional-dependencies]
+# sina_us / sina_hk / akshare 数据源需要
 extra = ["akshare>=1.16"]
+dev = ["pytest>=7.4", "ruff>=0.6"]
+
+[project.urls]
+Homepage = "https://github.com/skyn9/dca-backtest"
+Repository = "https://github.com/skyn9/dca-backtest"
+Issues = "https://github.com/skyn9/dca-backtest/issues"
+Changelog = "https://github.com/skyn9/dca-backtest/blob/main/CHANGELOG.md"
+Limitations = "https://github.com/skyn9/dca-backtest/blob/main/docs/limitations.md"
 
 [project.scripts]
 dca = "dca.cli:main"
@@ -22,4 +56,23 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["dca", "dca.sources", "dca.analysis"]
+packages = ["dca", "dca.sources", "dca.analysis", "dca.report"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"
+extend-exclude = ["archive"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4"]
+ignore = [
+  "E501",   # 行宽由 line-length 控制，中文对齐处允许略超
+  "B008",   # 允许在默认值里调用（本项目无副作用场景）
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E731"]

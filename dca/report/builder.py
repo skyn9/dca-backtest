@@ -1,15 +1,20 @@
-# -*- coding: utf-8 -*-
 """把一次完整分析渲染成自包含的 HTML 报告。"""
 from __future__ import annotations
-import json, html, datetime
-import numpy as np
+
+import datetime
+import html
+import json
+
 import pandas as pd
 
-from ..engine import dca_path, rolling_dca, perf_stats
 from .. import analysis as A
+from ..engine import dca_path, rolling_dca
 from .template import CSS, JS
 
-PCT = lambda v, d=2: "—" if v is None or v != v else f"{v*100:.{d}f}%"
+
+def PCT(v, d=2):
+    """百分比格式化；None/NaN 显示为破折号。"""
+    return "—" if v is None or v != v else f"{v*100:.{d}f}%"
 
 
 def _cls(v, good=0.0):
@@ -84,7 +89,7 @@ def build(portfolio, *, use_proxy: bool = False, horizons=(3, 5, 10, 15),
     mc = {}
     for tag, f in [("历史重演", 1.0), ("股票打8折", 0.8), ("股票打6折", 0.6)]:
         s = A.monte_carlo(r, w, years=forward, n_paths=n_mc,
-                          shock={c: f for c in eq} if f != 1.0 else None,
+                          shock=dict.fromkeys(eq, f) if f != 1.0 else None,
                           monthly=p.monthly_amount, buy_fee=p.buy_fee)
         mc[tag] = s
 
@@ -100,7 +105,8 @@ def build(portfolio, *, use_proxy: bool = False, horizons=(3, 5, 10, 15),
         for h in mx.columns:
             v = mx[h].dropna()
             if len(v) and (v > 0).all():
-                zero_from = int(h); break
+                zero_from = int(h)
+                break
 
     P_ = PCT
     parts = [f"<title>{esc(p.name)} · 定投回测报告</title>",
@@ -241,7 +247,7 @@ def build(portfolio, *, use_proxy: bool = False, horizons=(3, 5, 10, 15),
 历史窗口往往包含了某类资产的超常周期（如 2008 年以来的美股科技），未来重复的概率不高。</div></section>""")
 
     # 06 相关性
-    parts.append(f"""
+    parts.append("""
 <section><hr><div class="h-wrap"><span class="h-num">06</span><h2>相关性</h2></div>
 <p class="dek">月度收益相关系数。金色越深＝越同涨同跌，蓝色＝反向。<b>找零和负数，比找高收益更重要。</b></p>
 <div class="tw"><div id="corr" class="heat"></div></div></section>""")

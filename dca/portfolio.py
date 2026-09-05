@@ -1,10 +1,12 @@
-# -*- coding: utf-8 -*-
 """组合定义：从 YAML/dict 描述一篮子资产，负责取数、对齐、口径校正。"""
 from __future__ import annotations
+
 import os
 from dataclasses import dataclass, field
+
 import numpy as np
 import pandas as pd
+
 from .sources import get_source
 
 
@@ -27,17 +29,18 @@ class Asset:
     #: 实盘买 code 指定的产品，回测用 proxy 拿更长的历史。二者应跟踪同一标的。
     proxy: dict | None = None
 
-    def as_proxy(self) -> "Asset":
+    def as_proxy(self) -> Asset:
         """返回用代理参数构造的等价 Asset。无 proxy 时返回自身。"""
         if not self.proxy:
             return self
-        d = dict(name=self.name, weight=self.weight, note=self.note,
-                 source=self.proxy["source"], code=self.proxy["code"],
-                 dividend=self.proxy.get("dividend", 0.0),
-                 annual_fee=self.proxy.get("annual_fee", 0.0),
-                 tracking_diff=self.proxy.get("tracking_diff", 0.0),
-                 fx=self.proxy.get("fx"))
-        return Asset(**d)
+        return Asset(
+            name=self.name, weight=self.weight, note=self.note,
+            source=self.proxy["source"], code=self.proxy["code"],
+            dividend=self.proxy.get("dividend", 0.0),
+            annual_fee=self.proxy.get("annual_fee", 0.0),
+            tracking_diff=self.proxy.get("tracking_diff", 0.0),
+            fx=self.proxy.get("fx"),
+        )
 
     @property
     def gross_drag(self) -> float:
@@ -70,7 +73,7 @@ class Portfolio:
 
     # ---------- 构造 ----------
     @classmethod
-    def from_dict(cls, cfg: dict, cache_dir: str = "data") -> "Portfolio":
+    def from_dict(cls, cfg: dict, cache_dir: str = "data") -> Portfolio:
         assets = [Asset(**a) for a in cfg["assets"]]
         tw = sum(a.weight for a in assets)
         if tw <= 0:
@@ -86,7 +89,7 @@ class Portfolio:
                    meta={k: v for k, v in cfg.items() if k not in ("assets",)})
 
     @classmethod
-    def from_yaml(cls, path: str, cache_dir: str = "data") -> "Portfolio":
+    def from_yaml(cls, path: str, cache_dir: str = "data") -> Portfolio:
         import yaml
         with open(path, encoding="utf-8") as f:
             return cls.from_dict(yaml.safe_load(f), cache_dir=cache_dir)

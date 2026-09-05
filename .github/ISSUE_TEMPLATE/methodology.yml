@@ -1,0 +1,25 @@
+name: 方法或口径问题
+description: 认为某个计算口径、假设或结论有问题
+title: "[方法] "
+labels: ["methodology"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        欢迎这类 issue——本项目最怕的就是没被质疑的结论。
+        提交前建议先看 `docs/limitations.md`，其中已列出若干已知边界。
+  - type: textarea
+    id: issue
+    attributes:
+      label: 你认为哪里有问题
+      placeholder: "例如：港股红利用『价格指数 + 4% 股息假设』，这个 4% 的依据是什么？"
+    validations: { required: true }
+  - type: textarea
+    id: impact
+    attributes:
+      label: 如果成立，会影响哪些结论
+      placeholder: "例如：会让组合的 10 年定投中位收益高估约 0.4pp"
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: 建议的处理方式（可选）

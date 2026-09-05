@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
 """组合与配置的自检，不依赖网络。"""
 import glob
+
 import numpy as np
 import pandas as pd
 import pytest

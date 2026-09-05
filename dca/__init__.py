@@ -6,8 +6,8 @@
     r = p.returns()
     print(analysis.rolling_table(r, p.weights))
 """
-from .portfolio import Portfolio, Asset
-from . import engine, analysis, sources
+from . import analysis, engine, sources
+from .portfolio import Asset, Portfolio
 
 __version__ = "0.1.0"
 __all__ = ["Portfolio", "Asset", "engine", "analysis", "sources"]
