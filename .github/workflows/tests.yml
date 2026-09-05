@@ -47,6 +47,11 @@ jobs:
 
       - name: Smoke test CLI
         shell: bash
+        env:
+          # 仅作用于本步骤里那段内联脚本：Windows 控制台默认 cp1252。
+          # CLI 自身的编码处理由 tests/test_engine.py::test_cli_survives_non_utf8_console
+          # 显式以 cp1252 验证，不靠这里兜底。
+          PYTHONIOENCODING: utf-8
         run: |
           python -m dca sources
           python -m dca --help
