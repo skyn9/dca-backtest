@@ -1,0 +1,24 @@
+# 自动跟进 GitHub Actions 的版本更新。
+# 起因：首次 CI 就因 checkout/setup-python/upload-artifact 仍在已弃用的
+# Node 20 运行时上而产生告警，手动逐个升级过一轮。交给 dependabot 更省事。
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: "ci"
+    labels: ["dependencies"]
+
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: "deps"
+    labels: ["dependencies"]
+    # 数据源库变化频繁且常有破坏性改动，只跟主要版本之外的更新
+    ignore:
+      - dependency-name: akshare
+        update-types: ["version-update:semver-patch"]
